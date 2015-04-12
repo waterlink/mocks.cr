@@ -32,7 +32,7 @@ create_mock Example do
 end
 
 example = Example.new
-allow(example).to receive(say_hello(name)).with("world").and_return("hello, world!")
+allow(example).to receive(say_hello("world")).and_return("hello, world!")
 
 example.say_hello("world")    #=> "hello, world!"
 example.say_hello("john")     #=> "hey, john"
@@ -49,7 +49,7 @@ create_double "Example" do
 end
 
 example = double("Example", say_hello(name) => "hello")
-allow(example).to receive(greeting=(name)).and_return("hey")
+allow(example).to receive(greeting=("hey")).and_return("hey")
 ```
 
 ### Instance double
