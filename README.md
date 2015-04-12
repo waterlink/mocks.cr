@@ -40,6 +40,8 @@ example.say_hello("john")     #=> "hey, john"
 
 ### Double
 
+**Not implemented yet**
+
 ```crystal
 create_double "Example" do
   mock say_hello(name)
