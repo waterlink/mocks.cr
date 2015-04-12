@@ -1,0 +1,4 @@
+/.deps/
+/.crystal/
+/.deps.lock
+/libs/
