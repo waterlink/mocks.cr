@@ -42,10 +42,8 @@ example.say_hello("john")     #=> "hey, john"
 
 ### Double
 
-**Not implemented yet**
-
 ```crystal
-create_double "Example" do
+create_double "OtherExample" do
   mock say_hello(name)
 
   # here `instance.` is required because of assign operator and syntax
@@ -53,7 +51,7 @@ create_double "Example" do
   mock instance.greeting=(value)
 end
 
-example = double("Example", returns(say_hello("world"), "hello world!"))
+example = double("OtherExample", returns(say_hello("world"), "hello world!"))
 allow(example).to receive(instance.greeting=("hey")).and_return("hey")
 
 example.say_hello("world")     #=> "hello world!"
@@ -62,7 +60,16 @@ example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Mocks::Doubles
 
 ### Instance double
 
-TODO: Come up with usage for instance doubles
+**Not implemented**
+
+After defining `Example`'s mock with `create_mock` you can use it as an instance_double:
+
+```crystal
+example = instance_double(Example, returns(say_hello("world"), "hello, world!"))
+
+example.say_hello("world")     #=> "hello world!"
+example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Example:0x109498F00> received unexpected method call say_hello["john"]
+```
 
 ### Class double
 
