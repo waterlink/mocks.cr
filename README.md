@@ -29,6 +29,8 @@ end
 
 create_mock Example do
   mock say_hello(name)
+  # or
+  # mock instance.say_hello(name)
 end
 
 example = Example.new
@@ -45,11 +47,17 @@ example.say_hello("john")     #=> "hey, john"
 ```crystal
 create_double "Example" do
   mock say_hello(name)
-  mock greeting=(value)
+
+  # here `instance.` is required because of assign operator and syntax
+  # parsing
+  mock instance.greeting=(value)
 end
 
-example = double("Example", say_hello(name) => "hello")
-allow(example).to receive(greeting=("hey")).and_return("hey")
+example = double("Example", returns(say_hello("world"), "hello world!"))
+allow(example).to receive(instance.greeting=("hey")).and_return("hey")
+
+example.say_hello("world")     #=> "hello world!"
+example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Mocks::Doubles::OtherExample:0x109498F00> received unexpected method call say_hello["john"]
 ```
 
 ### Instance double
