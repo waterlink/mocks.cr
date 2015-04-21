@@ -49,6 +49,9 @@ macro create_double(name, &block)
   module Mocks
     module Doubles
       class {{name.id}}
+        def initialize
+        end
+
         def initialize(stubs)
           stubs.each do |stub|
             allow(self).to stub
@@ -76,5 +79,9 @@ macro create_double(name, &block)
 end
 
 macro double(name, *stubs)
+  {% if stubs.empty? %}
+  Mocks::Doubles::{{name.id}}.new
+  {% else %}
   Mocks::Doubles::{{name.id}}.new({{stubs}})
+  {% end %}
 end

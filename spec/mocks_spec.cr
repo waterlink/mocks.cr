@@ -39,6 +39,10 @@ describe Mocks do
   end
 
   describe "double" do
+    it "allows to create double without stubs" do
+      example = double("OtherExample")
+    end
+
     it "allows to define stubs as an argument" do
       example = double("OtherExample", returns(say_hello("world"), "hello, world!"))
       example.say_hello("world").should eq("hello, world!")
