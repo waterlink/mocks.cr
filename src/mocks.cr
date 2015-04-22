@@ -19,7 +19,7 @@ macro create_mock(name, &block)
   class {{name.id}}
     macro mock(method)
       def \{{method.name}}(\{{method.args.argify}})
-        method = Mocks::Registry.for("{{name.id}}").fetch_method("\{{method.name}}")
+        method = ::Mocks::Registry.for("{{name.id}}").fetch_method("\{{method.name}}")
         result = method.call(object_id, \{{method.args}})
         if result.call_original
           previous_def(\{{method.args.argify}})
@@ -34,7 +34,7 @@ macro create_mock(name, &block)
 end
 
 macro receive(method)
-  Mocks::Receive.new("{{method.name}}", {{method.args}})
+  ::Mocks::Receive.new("{{method.name}}", {{method.args}})
 end
 
 macro returns(method, and_return)
@@ -42,11 +42,11 @@ macro returns(method, and_return)
 end
 
 def allow(subject)
-  Mocks::Allow.new(subject)
+  ::Mocks::Allow.new(subject)
 end
 
 macro create_double(name, &block)
-  module Mocks
+  module ::Mocks
     module Doubles
       class {{name.id}}
         def initialize
@@ -60,10 +60,10 @@ macro create_double(name, &block)
 
         macro mock(method)
           def \{{method.name}}(\{{method.args.argify}})
-            method = Mocks::Registry.for("Mocks::Doubles::{{name.id}}").fetch_method("\{{method.name}}")
+            method = ::Mocks::Registry.for("Mocks::Doubles::{{name.id}}").fetch_method("\{{method.name}}")
             result = method.call(object_id, \{{method.args}})
             if result.call_original
-              raise UnexpectedMethodCall.new(
+              raise ::Mocks::UnexpectedMethodCall.new(
                 "#{self.inspect} received unexpected method call \{{method.name}}#{[\{{method.args.argify}}]}"
               )
             else
@@ -80,8 +80,8 @@ end
 
 macro double(name, *stubs)
   {% if stubs.empty? %}
-  Mocks::Doubles::{{name.id}}.new
+  ::Mocks::Doubles::{{name.id}}.new
   {% else %}
-  Mocks::Doubles::{{name.id}}.new({{stubs}})
+  ::Mocks::Doubles::{{name.id}}.new({{stubs}})
   {% end %}
 end
