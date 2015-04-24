@@ -63,9 +63,13 @@ macro create_double(name, &block)
             method = ::Mocks::Registry.for("Mocks::Doubles::{{name.id}}").fetch_method("\{{method.name}}")
             result = method.call(object_id, \{{method.args}})
             if result.call_original
-              raise ::Mocks::UnexpectedMethodCall.new(
-                "#{self.inspect} received unexpected method call \{{method.name}}#{[\{{method.args.argify}}]}"
-              )
+              \{% if method.name.stringify == "==" %}
+                super
+              \{% else %}
+                raise ::Mocks::UnexpectedMethodCall.new(
+                  "#{self.inspect} received unexpected method call \{{method.name}}#{[\{{method.args.argify}}]}"
+                )
+              \{% end %}
             else
               result.value
             end

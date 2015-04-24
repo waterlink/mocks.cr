@@ -15,6 +15,10 @@ create_double "OtherExample" do
   mock instance.greeting=(value)
 end
 
+create_double "EqualityEdgeCase" do
+  mock instance.==(other)
+end
+
 describe Mocks do
   describe "partial double" do
     it "has original value when there is no mocking" do
@@ -41,6 +45,26 @@ describe Mocks do
   describe "double" do
     it "allows to create double without stubs" do
       example = double("OtherExample")
+      allow(example).to receive(say_hello("john")).and_return("halo, john")
+      example.say_hello("john").should eq("halo, john")
+    end
+
+    it "defines good default #==" do
+      a = double("EqualityEdgeCase")
+      b = a
+      c = double("EqualityEdgeCase")
+
+      a.should eq(b)
+      a.should_not eq(c)
+    end
+
+    it "allows to override default #== gracefully" do
+      a = double("EqualityEdgeCase")
+      b = double("EqualityEdgeCase")
+      allow(a).to receive(instance.==(b)).and_return(true)
+
+      a.should eq(b)
+      b.should_not eq(a)
     end
 
     it "allows to define stubs as an argument" do
