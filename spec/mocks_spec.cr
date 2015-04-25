@@ -19,6 +19,21 @@ create_double "EqualityEdgeCase" do
   mock instance.==(other)
 end
 
+class SimpleWrapper
+  def initialize(@value)
+  end
+
+  def ==(other : SimpleWrapper)
+    self.value == other.value
+  end
+
+  def ==(other)
+    false
+  end
+
+  protected getter value
+end
+
 describe Mocks do
   describe "partial double" do
     it "has original value when there is no mocking" do
@@ -56,6 +71,16 @@ describe Mocks do
 
       a.should eq(b)
       a.should_not eq(c)
+    end
+
+    it "works when wrapped in simple object" do
+      a = double("EqualityEdgeCase")
+      b = double("EqualityEdgeCase")
+      c = double("EqualityEdgeCase")
+      allow(a).to receive(instance.==(c)).and_return(true)
+
+      SimpleWrapper.new(a).should_not eq(SimpleWrapper.new(b))
+      SimpleWrapper.new(a).should eq(SimpleWrapper.new(c))
     end
 
     it "allows to override default #== gracefully" do
