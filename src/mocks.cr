@@ -62,6 +62,10 @@ macro create_double(name, &block)
           self.same?(other)
         end
 
+        def ==(other : Value)
+          false
+        end
+
         macro mock(method)
           def \{{method.name}}(\{{method.args.argify}})
             method = ::Mocks::Registry.for("Mocks::Doubles::{{name.id}}").fetch_method("\{{method.name}}")

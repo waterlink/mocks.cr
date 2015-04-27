@@ -71,6 +71,7 @@ describe Mocks do
 
       a.should eq(b)
       a.should_not eq(c)
+      a.should_not eq(59)
     end
 
     it "works when wrapped in simple object" do
