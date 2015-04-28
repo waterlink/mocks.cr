@@ -78,7 +78,7 @@ macro create_double(name, &block)
             result = method.call(object_id, \{{method.args}})
             if result.call_original
               \{% if method.name.stringify == "==" %}
-                super
+                previous_def
               \{% else %}
                 raise ::Mocks::UnexpectedMethodCall.new(
                   "#{self.inspect} received unexpected method call \{{method.name}}#{[\{{method.args.argify}}]}"
