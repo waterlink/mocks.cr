@@ -27,14 +27,6 @@ module Mocks
     def same?(other : Value)
       false
     end
-
-    def ==(other)
-      self.same?(other)
-    end
-
-    def ==(other : Value)
-      false
-    end
   end
 end
 
@@ -72,6 +64,14 @@ macro create_double(name, &block)
   module ::Mocks
     module Doubles
       class {{name.id}} < ::Mocks::BaseDouble
+        def ==(other)
+          self.same?(other)
+        end
+
+        def ==(other : Value)
+          false
+        end
+
         macro mock(method)
           def \{{method.name}}(\{{method.args.argify}})
             method = ::Mocks::Registry.for("Mocks::Doubles::{{name.id}}").fetch_method("\{{method.name}}")
