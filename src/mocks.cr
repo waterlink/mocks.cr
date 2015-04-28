@@ -13,6 +13,29 @@ module Mocks
   end
 
   class UnexpectedMethodCall < Exception; end
+
+  class BaseDouble
+    def initialize
+    end
+
+    def initialize(stubs)
+      stubs.each do |stub|
+        allow(self).to stub
+      end
+    end
+
+    def same?(other : Value)
+      false
+    end
+
+    def ==(other)
+      self.same?(other)
+    end
+
+    def ==(other : Value)
+      false
+    end
+  end
 end
 
 macro create_mock(name, &block)
@@ -48,31 +71,14 @@ end
 macro create_double(name, &block)
   module ::Mocks
     module Doubles
-      class {{name.id}}
-        def initialize
-        end
-
-        def initialize(stubs)
-          stubs.each do |stub|
-            allow(self).to stub
-          end
-        end
-
-        def ==(other)
-          self.same?(other)
-        end
-
-        def ==(other : Value)
-          false
-        end
-
+      class {{name.id}} < ::Mocks::BaseDouble
         macro mock(method)
           def \{{method.name}}(\{{method.args.argify}})
             method = ::Mocks::Registry.for("Mocks::Doubles::{{name.id}}").fetch_method("\{{method.name}}")
             result = method.call(object_id, \{{method.args}})
             if result.call_original
               \{% if method.name.stringify == "==" %}
-                previous_def
+                super
               \{% else %}
                 raise ::Mocks::UnexpectedMethodCall.new(
                   "#{self.inspect} received unexpected method call \{{method.name}}#{[\{{method.args.argify}}]}"
