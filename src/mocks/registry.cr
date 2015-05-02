@@ -30,18 +30,51 @@ module Mocks
     end
 
     class Method
-      getter stubs
-
       def initialize
-        @stubs = {} of Array(Object) => Result
+        @stubs = Stubs.new
       end
 
       def call(object_id, args)
-        stubs.fetch([object_id, args], Result.new(true, nil))
+        stubs.fetch(object_id, args, Result.new(true, nil))
       end
 
       def store_stub(object_id, args, value)
-        stubs[[object_id, args]] = Result.new(false, value)
+        stubs.add(object_id, args, Result.new(false, value))
+      end
+
+      def stubs
+        @stubs
+      end
+    end
+
+    class Args
+      getter value
+
+      def initialize(@value)
+      end
+
+      def ==(other)
+        self.value == other.value
+      end
+
+      def hash
+        value.hash
+      end
+    end
+
+    class Stubs
+      getter hash
+
+      def initialize
+        @hash = {} of {typeof(object_id), Args} => Result
+      end
+
+      def add(object_id, args, result)
+        hash[{object_id, Args.new(args)}] = result
+      end
+
+      def fetch(object_id, args, result)
+        hash.fetch({object_id, Args.new(args)}, result)
       end
     end
   end
