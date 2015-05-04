@@ -109,7 +109,15 @@ example_class.new          # => #<Mocks::InstanceDoubles::Example:0x109498F00>
 
 ## Development
 
-TODO: Write instructions for development
+After cloning the project:
+
+```
+cd active_record.cr
+crystal deps   # install dependencies
+crystal spec   # run specs
+```
+
+Just use normal TDD development style.
 
 ## Contributing
 
