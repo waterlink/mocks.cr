@@ -1,4 +1,4 @@
-# mocks
+# mocks [![Build Status](https://travis-ci.org/waterlink/mocks.cr.svg?branch=master)](https://travis-ci.org/waterlink/mocks.cr)
 
 General purpose mocking library for Crystal.
 
