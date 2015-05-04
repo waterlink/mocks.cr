@@ -25,3 +25,11 @@ macro double(name, *stubs)
   ::Mocks::Doubles::{{name.id}}.new({{stubs}})
   {% end %}
 end
+
+macro instance_double(name, *stubs)
+  {% if stubs.empty? %}
+  ::Mocks::InstanceDoubles::{{name.id}}.new
+  {% else %}
+  ::Mocks::InstanceDoubles::{{name.id}}.new({{stubs}})
+  {% end %}
+end

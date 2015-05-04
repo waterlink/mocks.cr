@@ -40,6 +40,20 @@ example.say_hello("world")    #=> "hello, world!"
 example.say_hello("john")     #=> "hey, john"
 ```
 
+#### Class methods
+
+Just use `mock self.method_name(args..)`
+
+```crystal
+create_mock Example do
+  mock self.hello_world(greeting)
+end
+
+allow(Example).to receive(self.hello_world("aloha")).and_return("aloha (as 'hello'), world!")
+Example.hello_world("hey")         # => "hey, world!"                   (original was called)
+Example.hello_world("aloha")       # => "aloha (as 'hello'), world!"    (mock was called)
+```
+
 ### Double
 
 ```crystal
@@ -60,20 +74,24 @@ example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Mocks::Doubles
 
 ### Instance double
 
-**Not implemented**
-
-After defining `Example`'s mock with `create_mock` you can use it as an instance_double:
+After defining `Example`'s mock with `create_mock` you can use it as an `instance_double`:
 
 ```crystal
 example = instance_double(Example, returns(say_hello("world"), "hello, world!"))
+allow(example).to receive(say_hello("sarah")).and_return("Hey, Sarah!")
 
 example.say_hello("world")     #=> "hello world!"
+example.say_hello("sarah")     #=> "Hey, Sarah!"
 example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Example:0x109498F00> received unexpected method call say_hello["john"]
 ```
 
 ### Class double
 
-TODO: Come up with usage for class doubles (if they are needed at all)
+After defining `Example`'s mock with `create_mock` you can use it as a `class_double`:
+
+```crystal
+example_class = class_double(Example, returns(self.hello_world)
+```
 
 ## Development
 

@@ -187,4 +187,36 @@ describe Mocks do
       end
     end
   end
+
+  describe "instance double" do
+    it "can be created without stubs" do
+      example = instance_double(Example)
+      allow(example).to receive(say_hello("jonny")).and_return("ah, jonny, there you are")
+      example.say_hello("jonny").should eq("ah, jonny, there you are")
+    end
+
+    it "can be created with stub" do
+      example = instance_double(Example, returns(say_hello("james"), "Hi, James!"))
+      example.say_hello("james").should eq("Hi, James!")
+    end
+
+    it "can be created with a list of stubs" do
+      example = instance_double(Example,
+                                returns(say_hello("james"), "Hi, James!"),
+                                returns(say_hello("john"), "Oh, hey, John."))
+
+      example.say_hello("john").should eq("Oh, hey, John.")
+      example.say_hello("james").should eq("Hi, James!")
+    end
+
+    it "raises UnexpectedMethodCall when there is no such stub" do
+      example = instance_double(Example,
+                                returns(say_hello("james"), "Hi, James!"),
+                                returns(say_hello("john"), "Oh, hey, John."))
+
+      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call say_hello[\"sarah\"]" do
+        example.say_hello("sarah")
+      end
+    end
+  end
 end
