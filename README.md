@@ -112,7 +112,7 @@ example_class.new          # => #<Mocks::InstanceDoubles::Example:0x109498F00>
 After cloning the project:
 
 ```
-cd active_record.cr
+cd mocks.cr
 crystal deps   # install dependencies
 crystal spec   # run specs
 ```
