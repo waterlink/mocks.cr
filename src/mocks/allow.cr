@@ -7,9 +7,25 @@ module Mocks
 
     def to(message)
       Mocks::Registry
-        .for(subject.class.name)
+        .for(subject_name)
         .fetch_method(message.method_name)
-        .store_stub(subject.object_id, message.args, message.value)
+        .store_stub(object_id, message.args, message.value)
+    end
+
+    private def subject_name(subject : Class)
+      subject.to_s
+    end
+
+    private def subject_name(subject)
+      subject.class.name
+    end
+
+    private def subject_name
+      subject_name(subject)
+    end
+
+    private def object_id
+      Registry::ObjectId.build(subject)
     end
   end
 end

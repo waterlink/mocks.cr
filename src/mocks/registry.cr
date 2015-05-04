@@ -7,7 +7,11 @@ module Mocks
     end
 
     def self.instances
-      @@_instances ||= {} of String => self
+      @@_instances ||= reset!
+    end
+
+    def self.reset!
+      @@_instances = {} of String => self
     end
 
     getter methods
@@ -29,9 +33,27 @@ module Mocks
       end
     end
 
+    class NoArgs
+      def ==(other : NoArgs)
+        true
+      end
+
+      def ==(other)
+        false
+      end
+
+      def hash
+        0
+      end
+    end
+
     class Method
       def initialize
         @stubs = Stubs.new
+      end
+
+      def call(object_id)
+        stubs.fetch(object_id, NoArgs.new, Result.new(true, nil))
       end
 
       def call(object_id, args)
@@ -53,8 +75,12 @@ module Mocks
       def initialize(@value)
       end
 
-      def ==(other)
+      def ==(other : Args)
         self.value == other.value
+      end
+
+      def ==(other)
+        false
       end
 
       def hash
@@ -62,11 +88,34 @@ module Mocks
       end
     end
 
+    class ObjectId
+      def self.build(object : Class)
+        new(object.to_s)
+      end
+
+      def self.build(object)
+        new(object.object_id)
+      end
+
+      def initialize(@value : String|typeof(nil.object_id))
+      end
+
+      def ==(other : ObjectId)
+        self.value == other.value
+      end
+
+      def hash
+        value.hash
+      end
+
+      protected getter value
+    end
+
     class Stubs
       getter hash
 
       def initialize
-        @hash = {} of {typeof(object_id), Args} => Result
+        @hash = {} of {ObjectId, Args} => Result
       end
 
       def add(object_id, args, result)

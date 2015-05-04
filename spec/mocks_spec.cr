@@ -1,16 +1,44 @@
 require "./spec_helper"
 
 class Example
+  def self.hello_world
+    "hello world"
+  end
+
+  def self.hello_world(greeting)
+    "#{greeting} world"
+  end
+
+  def say_hello
+    "hey!"
+  end
+
   def say_hello(name)
     "hey, #{name}"
   end
 end
 
+class AnotherExample
+  def self.hello_world
+    "yet another hello world"
+  end
+end
+
 create_mock Example do
+  mock self.hello_world
+  mock self.hello_world(greeting)
+  mock instance.say_hello
   mock instance.say_hello(name)
 end
 
+create_mock AnotherExample do
+  mock self.hello_world
+end
+
 create_double "OtherExample" do
+  mock self.hello_world
+  mock self.hello_world(greeting)
+  mock instance.say_hello
   mock instance.say_hello(name)
   mock instance.greeting=(value)
 end
@@ -37,15 +65,19 @@ end
 describe Mocks do
   describe "partial double" do
     it "has original value when there is no mocking" do
+      Example.new.say_hello.should eq("hey!")
       Example.new.say_hello("john").should eq("hey, john")
     end
 
-    it "has mocked value when ther was some mocking" do
+    it "has mocked value when there was some mocking" do
       example = Example.new
-      allow(example).to receive(say_hello("world")).and_return("hello, world!")
 
+      allow(example).to receive(say_hello("world")).and_return("hello, world!")
       example.say_hello("world").should eq("hello, world!")
       example.say_hello("james").should eq("hey, james")
+
+      allow(example).to receive(say_hello).and_return("aloha!")
+      example.say_hello.should eq("aloha!")
     end
 
     it "affects only the same instance" do
@@ -55,13 +87,32 @@ describe Mocks do
       example2 = Example.new
       example2.say_hello("world").should eq("hey, world")
     end
+
+    it "works with class methods" do
+      Example.hello_world.should eq("hello world")
+
+      allow(Example).to receive(self.hello_world).and_return("hey world")
+      Example.hello_world.should eq("hey world")
+
+      allow(Example).to receive(self.hello_world("halo")).and_return("halo there world")
+      Example.hello_world("halo").should eq("halo there world")
+    end
+
+    it "affects only the same class" do
+      allow(Example).to receive(self.hello_world).and_return("proudly, hello world")
+      AnotherExample.hello_world.should eq("yet another hello world")
+    end
   end
 
   describe "double" do
     it "allows to create double without stubs" do
       example = double("OtherExample")
+
       allow(example).to receive(say_hello("john")).and_return("halo, john")
       example.say_hello("john").should eq("halo, john")
+
+      allow(example).to receive(say_hello).and_return("halo")
+      example.say_hello.should eq("halo")
     end
 
     it "defines good default #==" do
@@ -103,6 +154,18 @@ describe Mocks do
       allow(example).to receive(say_hello("john")).and_return("hi, john")
       example.say_hello("world").should eq("hello, world!")
       example.say_hello("john").should eq("hi, john")
+    end
+
+    it "allows to stub class methods" do
+      example = double("OtherExample")
+      klass = example.class
+
+      expect_raises Mocks::UnexpectedMethodCall, "#{klass.inspect} received unexpected method call self.hello_world[]" do
+        klass.hello_world
+      end
+
+      allow(klass).to receive(self.hello_world).and_return("aloha world")
+      klass.hello_world.should eq("aloha world")
     end
 
     it "allows to define multiple stubs as an argument list" do

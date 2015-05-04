@@ -11,6 +11,7 @@ module Mocks
   end
 
   def reset
+    Registry.reset!
   end
 
   class UnexpectedMethodCall < Exception; end
@@ -28,5 +29,12 @@ module Mocks
     def same?(other : Value)
       false
     end
+
+    def self.to_s
+      @@name
+    end
+  end
+
+  module BaseMock
   end
 end

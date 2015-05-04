@@ -1,5 +1,13 @@
 macro receive(method)
-  ::Mocks::Receive.new("{{method.name}}", {{method.args}})
+  {% method_name = method.name.id %}
+  {% method_name = "self.#{method_name}" if method.receiver.stringify == "self" %}
+  {% method_name = method_name.id %}
+
+  {% if method.args.empty? %}
+    ::Mocks::Receive.new("{{method_name}}")
+  {% else %}
+    ::Mocks::Receive.new("{{method_name}}", {{method.args}})
+  {% end %}
 end
 
 macro returns(method, and_return)
