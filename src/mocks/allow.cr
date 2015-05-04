@@ -2,6 +2,13 @@ module Mocks
   class Allow(T)
     getter subject
 
+    def self.with_stubs(subject, stubs)
+      stubs.each do |message|
+        new(subject).to message
+      end
+      subject
+    end
+
     def initialize(@subject : T)
     end
 

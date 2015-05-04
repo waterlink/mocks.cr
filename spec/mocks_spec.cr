@@ -219,4 +219,43 @@ describe Mocks do
       end
     end
   end
+
+  describe "class double" do
+    it "can be created without stubs" do
+      example = class_double(Example)
+      allow(example).to receive(self.hello_world("hello")).and_return("hello, world")
+      example.hello_world("hello").should eq("hello, world")
+    end
+
+    it "can be created with a list of stubs" do
+      example = class_double(Example,
+                             returns(self.hello_world("hello"), "hello, world"),
+                             returns(self.hello_world("hey"), "oh, hey, world!"))
+
+      example.hello_world("hello").should eq("hello, world")
+      example.hello_world("hey").should eq("oh, hey, world!")
+    end
+
+    it "raises UnexpectedMethodCall when there is no such stub" do
+      example = class_double(Example,
+                             returns(self.hello_world("hello"), "hello, world"),
+                             returns(self.hello_world("hey"), "oh, hey, world!"))
+
+      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call self.hello_world[\"aloha\"]" do
+        example.hello_world("aloha")
+      end
+    end
+
+    it "can be used to create instance_doubles with .new" do
+      example_class = class_double(Example)
+      example = example_class.new
+
+      allow(example).to receive(say_hello("john")).and_return("hello, john!")
+      example.say_hello("john").should eq("hello, john!")
+
+      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call say_hello[\"james\"]" do
+        example.say_hello("james")
+      end
+    end
+  end
 end

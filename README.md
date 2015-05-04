@@ -82,7 +82,7 @@ allow(example).to receive(say_hello("sarah")).and_return("Hey, Sarah!")
 
 example.say_hello("world")     #=> "hello world!"
 example.say_hello("sarah")     #=> "Hey, Sarah!"
-example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Example:0x109498F00> received unexpected method call say_hello["john"]
+example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Mocks::InstanceDoubles::Example:0x109498F00> received unexpected method call say_hello["john"]
 ```
 
 ### Class double
@@ -90,7 +90,21 @@ example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Example:0x1094
 After defining `Example`'s mock with `create_mock` you can use it as a `class_double`:
 
 ```crystal
-example_class = class_double(Example, returns(self.hello_world)
+example_class = class_double(Example, returns(self.hello_world("aloha"), "aloha, world!"))
+allow(example_class).to receive(self.hello_world("hi")).and_return("hey, world!")
+
+example_class.hello_world("aloha")            # => "aloha, world!"
+example_class.hello_world("hi")               # => "hey, world!"
+example_class.hello_world("halo")             # => Mocks::UnexpectedMethodCall: Mocks::InstanceDoubles::Example received unexpected method call self.hello_world["halo"]
+```
+
+#### .new
+
+It returns normal `instance_double`:
+
+```crystal
+example_class = class_double(Example)
+example_class.new          # => #<Mocks::InstanceDoubles::Example:0x109498F00>
 ```
 
 ## Development

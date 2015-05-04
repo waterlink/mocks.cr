@@ -33,3 +33,11 @@ macro instance_double(name, *stubs)
   ::Mocks::InstanceDoubles::{{name.id}}.new({{stubs}})
   {% end %}
 end
+
+macro class_double(name, *stubs)
+  {% if stubs.empty? %}
+  ::Mocks::InstanceDoubles::{{name.id}}
+  {% else %}
+  ::Mocks::Allow.with_stubs(::Mocks::InstanceDoubles::{{name.id}}, {{stubs}})
+  {% end %}
+end
