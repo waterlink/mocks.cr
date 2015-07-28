@@ -1,10 +1,13 @@
+require "spec"
 require "./mocks"
 
 module Mocks
 end
 
-def it(description, file = __FILE__, line = __LINE__, &block)
-  Mocks.with_reset do
-    previous_def(description, file, line, &block)
-  end
+Spec.before_each do
+  Mocks.reset
+end
+
+Spec.after_each do
+  Mocks.reset
 end
