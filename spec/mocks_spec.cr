@@ -182,7 +182,8 @@ describe Mocks do
                        returns(say_hello("world"), "hello, world!"),
                        returns(instance.greeting=("hi"), "yes, it is hi"))
 
-      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call say_hello[\"john\"]" do
+      expected_message = %{#{example.inspect} received unexpected method call say_hello["john"]}
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("john")
       end
     end
@@ -214,7 +215,8 @@ describe Mocks do
                                 returns(say_hello("james"), "Hi, James!"),
                                 returns(say_hello("john"), "Oh, hey, John."))
 
-      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call say_hello[\"sarah\"]" do
+      expected_message = "#{example.inspect} received unexpected method call say_hello[\"sarah\"]"
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("sarah")
       end
     end
@@ -241,7 +243,8 @@ describe Mocks do
                              returns(self.hello_world("hello"), "hello, world"),
                              returns(self.hello_world("hey"), "oh, hey, world!"))
 
-      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call self.hello_world[\"aloha\"]" do
+      expected_message = "#{example.inspect} received unexpected method call self.hello_world[\"aloha\"]"
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.hello_world("aloha")
       end
     end
@@ -253,7 +256,8 @@ describe Mocks do
       allow(example).to receive(say_hello("john")).and_return("hello, john!")
       example.say_hello("john").should eq("hello, john!")
 
-      expect_raises Mocks::UnexpectedMethodCall, "#{example.inspect} received unexpected method call say_hello[\"james\"]" do
+      expected_message = "#{example.inspect} received unexpected method call say_hello[\"james\"]" 
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("james")
       end
     end

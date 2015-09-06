@@ -111,19 +111,25 @@ module Mocks
       protected getter value
     end
 
+    class ResultWrapper
+      getter result
+      def initialize(@result)
+      end
+    end
+
     class Stubs
       getter hash
 
       def initialize
-        @hash = {} of {ObjectId, Args} => Result
+        @hash = {} of {ObjectId, Args} => ResultWrapper
       end
 
       def add(object_id, args, result)
-        hash[{object_id, Args.new(args)}] = result
+        hash[{object_id, Args.new(args)}] = ResultWrapper.new(result)
       end
 
       def fetch(object_id, args, result)
-        hash.fetch({object_id, Args.new(args)}, result)
+        hash.fetch({object_id, Args.new(args)}, ResultWrapper.new(result)).result
       end
     end
   end
