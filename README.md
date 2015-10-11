@@ -4,12 +4,12 @@ General purpose mocking library for Crystal.
 
 ## Installation
 
-Add it to `Projectfile`
+Add it to `shard.yml`:
 
-```crystal
-deps do
-  github "waterlink/mocks.cr"
-end
+```yaml
+dependencies:
+  mocks:
+    github: waterlink/mocks.cr
 ```
 
 ## Usage
