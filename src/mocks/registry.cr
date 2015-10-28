@@ -78,15 +78,19 @@ module Mocks
       def initialize(@value)
       end
 
-      def ==(other : Args)
+      def is_equal(other : Args)
         self.value == other.value
+      end
+
+      def is_equal(other)
+        false
       end
 
       def ==(other)
         false
       end
 
-      def hash
+      def its_hash
         value.hash
       end
     end
@@ -127,11 +131,11 @@ module Mocks
 
       def ==(other : self)
         self.id == other.id &&
-          self.args == other.args
+          self.args.is_equal(other.args)
       end
 
       def hash
-        {@id, @args}.hash
+        {@id, @args.its_hash}.hash
       end
     end
 
