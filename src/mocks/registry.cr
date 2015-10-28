@@ -120,19 +120,36 @@ module Mocks
       end
     end
 
+    class StubKey
+      getter id, args
+      def initialize(@id, @args)
+      end
+
+      def ==(other : self)
+        self.id == other.id &&
+          self.args == other.args
+      end
+
+      def hash
+        {@id, @args}.hash
+      end
+    end
+
     class Stubs
       getter hash
 
       def initialize
-        @hash = {} of {ObjectId, Args} => ResultWrapper
+        @hash = {} of StubKey => ResultWrapper
       end
 
       def add(object_id, args, result)
-        hash[{object_id, Args.new(args)}] = ResultWrapper.new(result)
+        key = StubKey.new(object_id, Args.new(args))
+        hash[key] = ResultWrapper.new(result)
       end
 
       def fetch(object_id, args, result)
-        hash.fetch({object_id, Args.new(args)}, ResultWrapper.new(result)).result
+        key = StubKey.new(object_id, Args.new(args))
+        hash.fetch(key, ResultWrapper.new(result)).result
       end
     end
   end
