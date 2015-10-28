@@ -72,21 +72,18 @@ module Mocks
       end
     end
 
-    class Args
+    class Args(T)
+      @value :: T
       getter value
 
-      def initialize(@value)
+      def initialize(@value : T)
       end
 
-      def is_equal(other : Args)
+      def is_equal(other : self)
         self.value == other.value
       end
 
       def is_equal(other)
-        false
-      end
-
-      def ==(other)
         false
       end
 
