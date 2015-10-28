@@ -49,8 +49,9 @@ create_double "EqualityEdgeCase" do
   mock (instance == other), Bool
 end
 
-class SimpleWrapper
-  def initialize(@value)
+class SimpleWrapper(T)
+  @value :: T
+  def initialize(@value : T)
   end
 
   def ==(other : SimpleWrapper)

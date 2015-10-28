@@ -1,5 +1,10 @@
+require "./receive"
+
 module Mocks
   class Message
+    @receive :: Receive
+    #@value :: ???
+
     getter receive
     getter value
 

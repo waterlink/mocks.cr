@@ -1,5 +1,6 @@
 module Mocks
   class Allow(T)
+    @subject :: T
     getter subject
 
     def self.with_stubs(subject, stubs)
