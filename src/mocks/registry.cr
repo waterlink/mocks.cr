@@ -1,52 +1,5 @@
 module Mocks
   class Registry
-    def self.for(name)
-      instances[name] = instances.fetch(name) {
-        new(name)
-      }
-    end
-
-    def self.instances
-      @@_instances ||= reset!
-    end
-
-    def self.reset!
-      @@_instances = {} of String => self
-    end
-
-    getter methods
-
-    def initialize(@name)
-      @methods = {} of String => Method
-    end
-
-    def fetch_method(method_name)
-      methods[method_name] = methods.fetch(method_name) {
-        Method.new
-      }
-    end
-
-    class Result(T)
-      getter call_original, value
-
-      def initialize(@call_original, @value : T)
-      end
-    end
-
-    class NoArgs
-      def ==(other : NoArgs)
-        true
-      end
-
-      def ==(other)
-        false
-      end
-
-      def hash
-        0
-      end
-    end
-
     class Method
       def initialize
         @stubs = Stubs.new
@@ -66,6 +19,56 @@ module Mocks
 
       def stubs
         @stubs
+      end
+    end
+
+    def self.for(name)
+      instances[name] = instances.fetch(name) {
+        new(name)
+      }
+    end
+
+    def self.instances
+      @@_instances ||= reset!
+    end
+
+    def self.reset!
+      @@_instances = {} of String => self
+    end
+
+    @methods :: Hash(String, Method)
+    getter methods
+
+    def initialize(@name)
+      @methods = {} of String => Method
+    end
+
+    def fetch_method(method_name)
+      methods[method_name] = methods.fetch(method_name) {
+        Method.new
+      }
+    end
+
+    class Result(T)
+      @call_original :: Bool
+      @value :: T
+      getter call_original, value
+
+      def initialize(@call_original, @value : T)
+      end
+    end
+
+    class NoArgs
+      def ==(other : NoArgs)
+        true
+      end
+
+      def ==(other)
+        false
+      end
+
+      def hash
+        0
       end
     end
 
