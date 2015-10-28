@@ -19,6 +19,10 @@ macro create_mock(name, &block)
           false
         end
 
+        macro mock(method_spec)
+          mock(\{{method_spec}}, nil, ::{{name.id}}.allocate)
+        end
+
         {{block.body}}
       end
     end

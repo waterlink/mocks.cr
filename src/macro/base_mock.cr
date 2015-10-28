@@ -6,16 +6,16 @@ module Mocks
       {% method_name = method_name.id %}
 
       def {{method_name}}({{method.args.argify}})
-        method = ::Mocks::Registry.for(@@__mocks_name).fetch_method({{method_name.stringify}})
+        %method = ::Mocks::Registry.for(@@__mocks_name).fetch_method({{method_name.stringify}})
         {% if method.args.empty? %}
-          result = method.call(::Mocks::Registry::ObjectId.build(self))
+          %result = %method.call(::Mocks::Registry::ObjectId.build(self))
         {% else %}
-          result = method.call(::Mocks::Registry::ObjectId.build(self), {{method.args}})
+          %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{method.args}})
         {% end %}
-        if result.call_original
+        if %result.call_original
           previous_def
         else
-          result.value
+          %result.value as typeof(previous_def)
         end
       end
     end

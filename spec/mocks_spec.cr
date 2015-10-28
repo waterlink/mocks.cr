@@ -36,15 +36,15 @@ create_mock AnotherExample do
 end
 
 create_double "OtherExample" do
-  mock self.hello_world
-  mock self.hello_world(greeting)
-  mock instance.say_hello
-  mock instance.say_hello(name)
-  mock instance.greeting=(value)
+  mock self.hello_world as String
+  mock self.hello_world(greeting) as String
+  mock instance.say_hello as String
+  mock instance.say_hello(name) as String
+  mock (instance.greeting = value), String
 end
 
 create_double "EqualityEdgeCase" do
-  mock instance.==(other)
+  mock (instance == other), Bool
 end
 
 class SimpleWrapper
@@ -101,6 +101,17 @@ describe Mocks do
     it "affects only the same class" do
       allow(Example).to receive(self.hello_world).and_return("proudly, hello world")
       AnotherExample.hello_world.should eq("yet another hello world")
+    end
+
+    it "returns value of valid type when not mocked" do
+      example = Example.new
+      typeof(example.say_hello("world")).should eq(String)
+    end
+
+    it "returns value of valid type when mocked" do
+      example = Example.new
+      allow(example).to receive(say_hello("world")).and_return("hello, test")
+      typeof(example.say_hello("world")).should eq(String)
     end
   end
 
@@ -187,6 +198,11 @@ describe Mocks do
         example.say_hello("john")
       end
     end
+
+    it "returns value of correct type" do
+      example = double("OtherExample")
+      typeof(example.say_hello("world")).should eq(String)
+    end
   end
 
   describe "instance double" do
@@ -219,6 +235,11 @@ describe Mocks do
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("sarah")
       end
+    end
+
+    it "returns value of correct type" do
+      example = instance_double(Example)
+      typeof(example.say_hello("world")).should eq(String)
     end
   end
 
@@ -260,6 +281,11 @@ describe Mocks do
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("james")
       end
+    end
+
+    it "returns value of correct type" do
+      example = class_double(Example)
+      typeof(example.hello_world("hey")).should eq(String)
     end
   end
 end
