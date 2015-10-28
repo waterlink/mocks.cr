@@ -29,6 +29,8 @@ create_mock Example do
   mock self.hello_world(greeting)
   mock instance.say_hello
   mock instance.say_hello(name)
+  mock instance.greeting = value
+  mock instance == value
 end
 
 create_mock AnotherExample do

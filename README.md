@@ -40,6 +40,20 @@ example.say_hello("world")    #=> "hello, world!"
 example.say_hello("john")     #=> "hey, john"
 ```
 
+If you want to mock operators or setters, syntax is pretty straightforward:
+
+```crystal
+# setter
+mock instance.greeting = value
+# or
+mock instance.greeting=(value)
+
+# equals
+mock instance == other
+# or
+mock instance.==(other)
+```
+
 #### Class methods
 
 Just use `mock self.method_name(args..)`
@@ -56,13 +70,17 @@ Example.hello_world("aloha")       # => "aloha (as 'hello'), world!"    (mock wa
 
 ### Double
 
+Caution: doubles require return types.
+
 ```crystal
 create_double "OtherExample" do
-  mock say_hello(name)
+  mock say_hello(name) as String
+  mock greetings_count as Int64
 
-  # here `instance.` is required because of assign operator and syntax
-  # parsing
-  mock instance.greeting=(value)
+  # For setters and operators this is the only syntax allowed:
+  # ( parenthesis are mandatory not to confuse Crystal's parser )
+  mock (instance.greeting = value), String
+  mock (instance == other), Bool
 end
 
 example = double("OtherExample", returns(say_hello("world"), "hello world!"))
