@@ -1,8 +1,5 @@
 module Mocks
   class Allow(T)
-    @subject :: T
-    getter subject
-
     def self.with_stubs(subject, stubs)
       stubs.each do |message|
         new(subject).to message
@@ -10,6 +7,8 @@ module Mocks
       subject
     end
 
+    @subject :: T
+    getter subject
     def initialize(@subject : T)
     end
 
