@@ -72,14 +72,23 @@ module Mocks
       end
     end
 
+    module GenericArgs
+      abstract def is_equal(other)
+      abstract def its_hash
+      abstract def value
+      abstract def downcast
+    end
+
     class Args(T)
+      include GenericArgs
+
       @value :: T
       getter value
 
       def initialize(@value : T)
       end
 
-      def is_equal(other : self)
+      def is_equal(other : GenericArgs)
         self.value == other.value
       end
 
@@ -89,6 +98,10 @@ module Mocks
 
       def its_hash
         value.hash
+      end
+
+      def downcast
+        self
       end
     end
 
@@ -122,17 +135,19 @@ module Mocks
     end
 
     class StubKey
+      @id :: ObjectId
+      @args :: GenericArgs
       getter id, args
       def initialize(@id, @args)
       end
 
       def ==(other : self)
         self.id == other.id &&
-          self.args.is_equal(other.args)
+          self.args.downcast.is_equal(other.args.downcast)
       end
 
       def hash
-        {@id, @args.its_hash}.hash
+        {id, args.its_hash}.hash
       end
     end
 
