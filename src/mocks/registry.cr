@@ -73,9 +73,8 @@ module Mocks
     end
 
     module GenericArgs
-      abstract def is_equal(other)
-      abstract def its_hash
-      abstract def value
+      abstract def ==(other)
+      abstract def hash
       abstract def downcast
     end
 
@@ -88,15 +87,15 @@ module Mocks
       def initialize(@value : T)
       end
 
-      def is_equal(other : GenericArgs)
+      def ==(other : GenericArgs)
         self.value == other.value
       end
 
-      def is_equal(other)
+      def ==(other)
         false
       end
 
-      def its_hash
+      def hash
         value.hash
       end
 
@@ -143,11 +142,11 @@ module Mocks
 
       def ==(other : self)
         self.id == other.id &&
-          self.args.downcast.is_equal(other.args.downcast)
+          self.args.downcast == other.args.downcast
       end
 
       def hash
-        {id, args.its_hash}.hash
+        {id, args}.hash
       end
     end
 
