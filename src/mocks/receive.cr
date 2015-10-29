@@ -1,13 +1,12 @@
 require "./registry"
 
 module Mocks
-  class Receive
+  class Receive(T)
+    @args :: T
     @method_name :: String
-    getter method_name
-    #@args :: ???
-    getter args
+    getter args, method_name
 
-    def initialize(@method_name, @args = Registry::NoArgs.new)
+    def initialize(@method_name, @args : T)
     end
 
     def and_return(value)

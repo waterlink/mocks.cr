@@ -4,7 +4,7 @@ macro receive(method)
   {% method_name = method_name.id %}
 
   {% if method.args.empty? %}
-    ::Mocks::Receive.new("{{method_name}}")
+    ::Mocks::Receive.new("{{method_name}}", ::Mocks::Registry::NoArgs.new)
   {% else %}
     ::Mocks::Receive.new("{{method_name}}", {{method.args}})
   {% end %}
