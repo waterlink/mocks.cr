@@ -1,14 +1,14 @@
 require "./receive"
 
 module Mocks
-  class Message
+  class Message(T)
     @receive :: Receive
-    #@value :: ???
+    @value :: T
 
     getter receive
     getter value
 
-    def initialize(@receive, @value)
+    def initialize(@receive, @value : T)
     end
 
     def method_name
