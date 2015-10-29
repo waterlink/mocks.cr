@@ -1,8 +1,20 @@
 module Mocks
   class Registry
-    class ResultWrapper
+    module ResultInterface
+      abstract def result
+      abstract def downcast
+    end
+
+    class ResultWrapper(T)
+      include ResultInterface
+
+      @result :: T
       getter result
-      def initialize(@result)
+      def initialize(@result : T)
+      end
+
+      def downcast
+        self
       end
     end
 
@@ -80,11 +92,11 @@ module Mocks
     end
 
     class Stubs
-      @hash :: Hash(StubKey, ResultWrapper)
+      @hash :: Hash(StubKey, ResultInterface)
       getter hash
 
       def initialize
-        @hash = {} of StubKey => ResultWrapper
+        @hash = {} of StubKey => ResultInterface
       end
 
       def add(object_id, args, result)
