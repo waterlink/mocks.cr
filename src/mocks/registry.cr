@@ -72,14 +72,14 @@ module Mocks
       end
     end
 
-    module GenericArgs
+    module ArgsInterface
       abstract def ==(other)
       abstract def hash
       abstract def downcast
     end
 
     class Args(T)
-      include GenericArgs
+      include ArgsInterface
 
       @value :: T
       getter value
@@ -87,7 +87,7 @@ module Mocks
       def initialize(@value : T)
       end
 
-      def ==(other : GenericArgs)
+      def ==(other : ArgsInterface)
         self.value == other.value
       end
 
@@ -135,7 +135,7 @@ module Mocks
 
     class StubKey
       @id :: ObjectId
-      @args :: GenericArgs
+      @args :: ArgsInterface
       getter id, args
       def initialize(@id, @args)
       end
