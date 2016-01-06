@@ -17,5 +17,11 @@ module Issue2
       allow(klass).to receive(self.exists?("hello")).and_return("world")
       klass.exists?("hello").should eq("world")
     end
+
+    it "works without class double" do
+      allow(Issue2Application).to receive(self.exists?("hello")).and_return("world")
+      Issue2Application.exists?("hello").should eq("world")
+      Issue2Application.exists?("hi").should eq("wolrd")
+    end
   end
 end
