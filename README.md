@@ -10,7 +10,7 @@ Add it to `shard.yml`:
 dependencies:
   mocks:
     github: waterlink/mocks.cr
-    version: 0.2.0
+    version: 0.2.1
 ```
 
 ## Usage
