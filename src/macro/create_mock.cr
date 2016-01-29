@@ -1,30 +1,26 @@
 macro create_mock(name, &block)
-  class {{name.id}}
+  class ::{{name.id}}
     @@__mocks_name = "{{name.id}}"
 
     include ::Mocks::BaseMock
     {{block.body}}
   end
 
-  module ::Mocks
-    module InstanceDoubles
-      class {{name.id}} < ::Mocks::BaseDouble
-        @@name = "Mocks::InstanceDoubles::{{name.id}}"
+  class ::Mocks::InstanceDoubles{{name.id}} < ::Mocks::BaseDouble
+    @@name = "Mocks::InstanceDoubles{{name.id}}"
 
-        def ==(other)
-          self.same?(other)
-        end
-
-        def ==(other : Value)
-          false
-        end
-
-        macro mock(method_spec)
-          mock(\{{method_spec}}, nil, ::{{name.id}}.allocate)
-        end
-
-        {{block.body}}
-      end
+    def ==(other)
+      self.same?(other)
     end
+
+    def ==(other : Value)
+      false
+    end
+
+    macro mock(method_spec)
+      mock(\{{method_spec}}, nil, ::{{name.id}}.allocate)
+    end
+
+    {{block.body}}
   end
 end

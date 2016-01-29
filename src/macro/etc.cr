@@ -28,16 +28,16 @@ end
 
 macro instance_double(name, *stubs)
   {% if stubs.empty? %}
-  ::Mocks::InstanceDoubles::{{name.id}}.new
+  ::Mocks::InstanceDoubles{{name.id}}.new
   {% else %}
-  ::Mocks::InstanceDoubles::{{name.id}}.new({{stubs}})
+  ::Mocks::InstanceDoubles{{name.id}}.new({{stubs}})
   {% end %}
 end
 
 macro class_double(name, *stubs)
   {% if stubs.empty? %}
-  ::Mocks::InstanceDoubles::{{name.id}}
+  ::Mocks::InstanceDoubles{{name.id}}
   {% else %}
-  ::Mocks::Allow.with_stubs(::Mocks::InstanceDoubles::{{name.id}}, {{stubs}})
+  ::Mocks::Allow.with_stubs(::Mocks::InstanceDoubles{{name.id}}, {{stubs}})
   {% end %}
 end

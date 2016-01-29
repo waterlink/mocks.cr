@@ -24,6 +24,12 @@ class AnotherExample
   end
 end
 
+class I::Am::Namespaced
+  def foo(bar)
+    bar
+  end
+end
+
 create_mock Example do
   mock self.hello_world
   mock self.hello_world(greeting)
@@ -47,6 +53,14 @@ end
 
 create_double "EqualityEdgeCase" do
   mock (instance == other), Bool
+end
+
+create_mock I::Am::Namespaced do
+  mock foo(bar)
+end
+
+create_double "Yet::Another::Namespaced" do
+  mock bar(foo) as String
 end
 
 class SimpleWrapper(T)
@@ -289,6 +303,41 @@ describe Mocks do
     it "returns value of correct type" do
       example = class_double(Example)
       typeof(example.hello_world("hey")).should eq(String)
+    end
+  end
+
+  describe "namespaced partial double" do
+    it "works" do
+      example = I::Am::Namespaced.new
+      example.foo("bar").should eq("bar")
+
+      allow(example).to receive(foo("bar")).and_return("hello world")
+      example.foo("bar").should eq("hello world")
+    end
+  end
+
+  describe "namespaced instance double" do
+    it "works" do
+      example = instance_double(I::Am::Namespaced)
+      allow(example).to receive(foo("world")).and_return("hi world")
+      example.foo("world").should eq("hi world")
+    end
+  end
+
+  describe "namespaced class double" do
+    it "works" do
+      klass = class_double(I::Am::Namespaced)
+      example = klass.new
+      allow(example).to receive(foo("bar")).and_return("barfoo")
+      example.foo("bar").should eq("barfoo")
+    end
+  end
+
+  describe "namespaced double" do
+    it "works" do
+      example = double(Yet::Another::Namespaced)
+      allow(example).to receive(bar("foo")).and_return("foobar")
+      example.bar("foo").should eq("foobar")
     end
   end
 end
