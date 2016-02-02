@@ -57,7 +57,17 @@ module Mocks
           {% end %}
 
         else
-          %result.value as {{return_type.id}}
+          if %result.value.is_a?({{return_type.id}})
+            %result.value as {{return_type.id}}
+          else
+            raise ::Mocks::UnexpectedMethodCall.new(
+              {% if method.args.empty? %}
+                "#{self.inspect} received unexpected method call {{method_name}}[]"
+              {% else %}
+                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.argify}}]}"
+              {% end %}
+            )
+          end
         end
       end
     end

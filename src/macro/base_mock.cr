@@ -12,10 +12,21 @@ module Mocks
         {% else %}
           %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{method.args}})
         {% end %}
+
         if %result.call_original
           previous_def
         else
-          %result.value as typeof(previous_def)
+          if %result.value.is_a?(typeof(previous_def))
+            %result.value as typeof(previous_def)
+          else
+            raise ::Mocks::UnexpectedMethodCall.new(
+              {% if method.args.empty? %}
+                "#{self.inspect} received unexpected method call {{method_name}}[]"
+              {% else %}
+                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.argify}}]}"
+              {% end %}
+            )
+          end
         end
       end
     end
