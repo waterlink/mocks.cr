@@ -7,7 +7,19 @@ next_change() {
   echo $((x+1)) | tee .change-count
 }
 
-inotifywait --quiet --recursive --monitor --event modify --format "%w%f" src spec \
+watch() {
+  os="$(uname)"
+  if [[ "$os" = "Linux" ]]; then
+    inotifywait --quiet --recursive --monitor --event modify --format "%w%f" "$@"
+  elif [[ "$os" = "Darwin" ]]; then
+    fswatch -o "$@"
+  else
+    echo "Unknown OS $os"
+    exit 1
+  fi
+}
+
+watch src spec \
   | while read change; do
     crystal spec --no-color > .watch.out
     res=$?
