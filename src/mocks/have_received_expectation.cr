@@ -8,11 +8,11 @@ module Mocks
     end
 
     def failure_message
-      "expected: greet[\"world\"]\n     got: #{got}"
+      "expected: #{expected}\n     got: #{got}"
     end
 
     def negative_failure_message
-      "expected: receive != greet[\"world\"]\n     got: #{got}"
+      "expected: receive != #{expected}\n     got: #{got}"
     end
 
     private def method
@@ -31,6 +31,10 @@ module Mocks
       end
 
       "nil"
+    end
+
+    def expected
+      "#{@receive.method_name}#{@receive.args.inspect}"
     end
 
     private def last_args

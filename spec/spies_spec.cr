@@ -40,13 +40,18 @@ module SpiesTest
 
     it "works as stdlib spec expectation" do
       p = Person.new
-      expect_raises Spec::AssertionFailed, "expected: greet[\"world\"]\n     got: nil" do
-        p.should have_received(greet("world"))
+      expect_raises Spec::AssertionFailed, "expected: greet[\"John\"]\n     got: nil" do
+        p.should have_received(greet("John"))
       end
 
       p.greet("John")
       expect_raises Spec::AssertionFailed, "expected: greet[\"world\"]\n     got: greet[\"John\"]" do
         p.should have_received(greet("world"))
+      end
+
+      p.greet("John")
+      expect_raises Spec::AssertionFailed, "expected: receive != greet[\"John\"]\n     got: greet[\"John\"]" do
+        p.should_not have_received(greet("John"))
       end
 
       p.greet("world")
