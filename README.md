@@ -126,6 +126,15 @@ example_class = class_double(Example)
 example_class.new          # => #<Mocks::InstanceDoubles::Example:0x109498F00>
 ```
 
+### HaveReceived expectation (usage with stdlib `spec`)
+
+```crystal
+example = Example.new
+example.say("hello")
+example.should have_received(say("hello"))   # passes
+example.should have_received(say("hi"))      # fails
+```
+
 ## Development
 
 After cloning the project:

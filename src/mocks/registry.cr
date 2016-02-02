@@ -91,7 +91,7 @@ module Mocks
       end
     end
 
-    class Stubs
+    class CallHash
       @hash :: Hash(StubKey, ResultInterface)
       getter hash
 
@@ -111,22 +111,44 @@ module Mocks
     end
 
     class Method
-      @stubs :: Stubs
-      getter stubs
+      @stubs :: CallHash
+      @received :: CallHash
+      @last_args :: CallHash
+      getter stubs, received, last_args
       def initialize
-        @stubs = Stubs.new
+        @stubs = CallHash.new
+        @received = CallHash.new
+        @last_args = CallHash.new
       end
 
       def call(object_id)
-        stubs.fetch(object_id, NoArgs.new, Result.new(true, nil))
+        call(object_id, NoArgs.new)
       end
 
       def call(object_id, args)
+        received.add(object_id, args, Result.new(false, true))
+        last_args.add(object_id, NoArgs.new, Result.new(false, args))
         stubs.fetch(object_id, args, Result.new(true, nil))
       end
 
       def store_stub(object_id, args, value)
         stubs.add(object_id, args, Result.new(false, value))
+      end
+
+      def received?(object_id)
+        received?(object_id, NoArgs.new)
+      end
+
+      def received?(object_id, args)
+        received
+          .fetch(object_id, args, Result.new(true, false))
+          .value
+      end
+
+      def last_received_args(object_id)
+        last_args
+          .fetch(object_id, NoArgs.new, Result.new(true, nil))
+          .value
       end
     end
 
