@@ -10,6 +10,10 @@ macro receive(method)
   {% end %}
 end
 
+macro have_received(method)
+  ::Mocks::HaveReceivedExpectation.new(receive({{method}}))
+end
+
 macro returns(method, and_return)
   receive({{method}}).and_return({{and_return}})
 end

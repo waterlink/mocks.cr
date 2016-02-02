@@ -2,3 +2,5 @@
 /.crystal/
 /.deps.lock
 /libs/
+
+/.watch.out
