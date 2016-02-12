@@ -311,7 +311,7 @@ describe Mocks do
       allow(example).to receive(say_hello("john")).and_return("hello, john!")
       example.say_hello("john").should eq("hello, john!")
 
-      expected_message = "#{example.inspect} received unexpected method call say_hello[\"james\"]" 
+      expected_message = "#{example.inspect} received unexpected method call say_hello[\"james\"]"
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("james")
       end
