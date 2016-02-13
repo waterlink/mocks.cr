@@ -69,6 +69,24 @@ Example.hello_world("hey")         # => "hey, world!"                   (origina
 Example.hello_world("aloha")       # => "aloha (as 'hello'), world!"    (mock was called)
 ```
 
+#### Module methods
+
+Just use `mock self.method_name(args..)`
+
+```crystal
+module Example
+  def self.hello_world(greeting)
+    greeting
+  end
+end
+
+create_module_mock Example do
+  mock self.hello_world(greeting)
+end
+
+allow(Example).to receive(self.hello_world("aloha")).and_return("aloha (as 'hello'), world!")
+```
+
 ### Double
 
 Caution: doubles require return types.
