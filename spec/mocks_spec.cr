@@ -24,6 +24,12 @@ class AnotherExample
   end
 end
 
+module ModuleExample
+  def self.hello_world
+    "what a wonderful world"
+  end
+end
+
 class I::Am::Namespaced
   def foo(bar)
     bar
@@ -40,6 +46,10 @@ create_mock Example do
 end
 
 create_mock AnotherExample do
+  mock self.hello_world
+end
+
+create_module_mock ModuleExample do
   mock self.hello_world
 end
 
@@ -113,6 +123,13 @@ describe Mocks do
 
       allow(Example).to receive(self.hello_world("halo")).and_return("halo there world")
       Example.hello_world("halo").should eq("halo there world")
+    end
+
+    it "works with module methdods" do
+      ModuleExample.hello_world.should eq("what a wonderful world")
+
+      allow(ModuleExample).to receive(self.hello_world).and_return("hey world")
+      ModuleExample.hello_world.should eq("hey world")
     end
 
     it "affects only the same class" do
@@ -294,7 +311,7 @@ describe Mocks do
       allow(example).to receive(say_hello("john")).and_return("hello, john!")
       example.say_hello("john").should eq("hello, john!")
 
-      expected_message = "#{example.inspect} received unexpected method call say_hello[\"james\"]" 
+      expected_message = "#{example.inspect} received unexpected method call say_hello[\"james\"]"
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("james")
       end
