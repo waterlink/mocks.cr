@@ -11,6 +11,16 @@ module SpiesTest
     mock greet(who)
   end
 
+  module ExampleModule
+    def self.greet(who)
+      "hey #{who} from module"
+    end
+  end
+
+  create_module_mock SpiesTest::ExampleModule do
+    mock self.greet(who)
+  end
+
   describe "Spies" do
     expectation = Mocks::HaveReceivedExpectation
       .new(receive(greet("world")))
@@ -56,6 +66,11 @@ module SpiesTest
 
       p.greet("world")
       p.should have_received(greet("world"))
+    end
+
+    it "works with module mock" do
+      ExampleModule.greet("John")
+      ExampleModule.should have_received(self.greet("John"))
     end
   end
 end
