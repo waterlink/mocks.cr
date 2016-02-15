@@ -19,12 +19,12 @@ module Mocks
     end
 
     class ObjectId
-      def self.build(object : Class)
-        new(object.to_s)
-      end
-
       def self.build(object)
-        new(object.object_id)
+        if object.responds_to?(:object_id)
+          new(object.object_id)
+        else
+          new(object.to_s)
+        end
       end
 
       @value :: String|UInt64
