@@ -7,7 +7,7 @@ module Mocks
       subject
     end
 
-    @subject :: T
+    @subject : T
     getter subject
     def initialize(@subject : T)
     end

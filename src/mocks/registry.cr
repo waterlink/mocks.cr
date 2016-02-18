@@ -8,7 +8,7 @@ module Mocks
     class ResultWrapper(T)
       include ResultInterface
 
-      @result :: T
+      @result : T
       getter result
       def initialize(@result : T)
       end
@@ -27,7 +27,7 @@ module Mocks
         end
       end
 
-      @value :: String|UInt64
+      @value : String|UInt64
       def initialize(@value)
       end
 
@@ -51,7 +51,7 @@ module Mocks
     class Args(T)
       include ArgsInterface
 
-      @value :: T
+      @value : T
       getter value
 
       def initialize(@value : T)
@@ -75,8 +75,8 @@ module Mocks
     end
 
     class StubKey
-      @id :: ObjectId
-      @args :: ArgsInterface
+      @id : ObjectId
+      @args : ArgsInterface
       getter id, args
       def initialize(@id, @args)
       end
@@ -92,7 +92,7 @@ module Mocks
     end
 
     class CallHash
-      @hash :: Hash(StubKey, ResultInterface)
+      @hash : Hash(StubKey, ResultInterface)
       getter hash
 
       def initialize
@@ -111,9 +111,9 @@ module Mocks
     end
 
     class Method
-      @stubs :: CallHash
-      @received :: CallHash
-      @last_args :: CallHash
+      @stubs : CallHash
+      @received : CallHash
+      @last_args : CallHash
       getter stubs, received, last_args
       def initialize
         @stubs = CallHash.new
@@ -166,8 +166,8 @@ module Mocks
       @@_instances = {} of String => self
     end
 
-    @methods :: Hash(String, Method)
-    @name :: String
+    @methods : Hash(String, Method)
+    @name : String
     getter methods
 
     def initialize(@name)
@@ -181,8 +181,8 @@ module Mocks
     end
 
     class Result(T)
-      @call_original :: Bool
-      @value :: T
+      @call_original : Bool
+      @value : T
       getter call_original, value
 
       def initialize(@call_original, @value : T)

@@ -2,8 +2,8 @@ require "./receive"
 
 module Mocks
   class Message(T, V)
-    @receive :: Receive(T)
-    @value :: V
+    @receive : Receive(T)
+    @value : V
 
     getter receive
     getter value

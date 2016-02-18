@@ -74,7 +74,7 @@ create_double "Yet::Another::Namespaced" do
 end
 
 class SimpleWrapper(T)
-  @value :: T
+  @value : T
   def initialize(@value : T)
   end
 
