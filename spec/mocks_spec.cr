@@ -36,6 +36,12 @@ class I::Am::Namespaced
   end
 end
 
+struct StructTimeExample
+  def self.now
+    Time.new(2015, 1, 10)
+  end
+end
+
 create_mock Example do
   mock self.hello_world
   mock self.hello_world(greeting)
@@ -51,6 +57,10 @@ end
 
 create_module_mock ModuleExample do
   mock self.hello_world
+end
+
+create_struct_mock StructTimeExample do
+  mock self.now
 end
 
 create_double "OtherExample" do
@@ -125,11 +135,18 @@ describe Mocks do
       Example.hello_world("halo").should eq("halo there world")
     end
 
-    it "works with module methdods" do
+    it "works with module methods" do
       ModuleExample.hello_world.should eq("what a wonderful world")
 
       allow(ModuleExample).to receive(self.hello_world).and_return("hey world")
       ModuleExample.hello_world.should eq("hey world")
+    end
+
+    it "works with struct methods" do
+      StructTimeExample.now.should eq(Time.new(2015, 1, 10))
+
+      allow(StructTimeExample).to receive(self.now).and_return(Time.new(2014, 12, 22))
+      StructTimeExample.now.should eq(Time.new(2014, 12, 22))
     end
 
     it "affects only the same class" do
