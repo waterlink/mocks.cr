@@ -24,11 +24,13 @@ module Mocks
           if %result.value.is_a?(typeof(previous_def))
             %result.value as typeof(previous_def)
           else
+            %type_error = "#{self.inspect} attempted to return stubbed value of wrong type, while calling"
+            %type_error_detail = "Expected type: #{typeof(previous_def)}. Actual type: #{ %result.value.class }"
             raise ::Mocks::UnexpectedMethodCall.new(
               {% if method.args.empty? %}
-                "#{self.inspect} received unexpected method call {{method_name}}[]"
+                "#{ %type_error } {{method_name}}[]. #{ %type_error_detail }"
               {% else %}
-                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.argify}}]}"
+                "#{ %type_error } {{method_name}}#{[{{method.args.argify}}]}. #{ %type_error_detail }"
               {% end %}
             )
           end

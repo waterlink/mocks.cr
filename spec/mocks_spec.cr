@@ -16,6 +16,10 @@ class Example
   def say_hello(name)
     "hey, #{name}"
   end
+
+  def say_nothing
+    nil
+  end
 end
 
 class AnotherExample
@@ -163,6 +167,22 @@ describe Mocks do
       example = Example.new
       allow(example).to receive(say_hello("world")).and_return("hello, test")
       typeof(example.say_hello("world")).should eq(String)
+    end
+
+    it "does not fail if stubbed value is nil" do
+      example = Example.new
+      allow(example).to receive(say_hello("world")).and_return(nil)
+
+      expected_message = "#{example.inspect} attempted to return stubbed value of wrong type, while calling say_hello[\"world\"]. Expected type: String. Actual type: Nil"
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
+        example.say_hello("world")
+      end
+    end
+
+    it "does not fail if stubbed value is nil and the type of method is nil" do
+      example = Example.new
+      allow(example).to receive(say_nothing).and_return(nil)
+      example.say_nothing.should eq(nil)
     end
   end
 
