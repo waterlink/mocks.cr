@@ -8,14 +8,14 @@ module Issue2
   end
 end
 
-create_mock Issue2::Application do
+Mocks.create_mock Issue2::Application do
   mock self.exists?(message)
 end
 
 module Issue2
   describe "Application mock" do
     it "works" do
-      klass = class_double(Issue2::Application)
+      klass = Mocks.class_double(Issue2::Application)
       allow(klass).to receive(self.exists?("hello")).and_return("world")
       klass.exists?("hello").should eq("world")
     end

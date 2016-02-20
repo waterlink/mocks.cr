@@ -46,7 +46,7 @@ struct StructTimeExample
   end
 end
 
-create_mock Example do
+Mocks.create_mock Example do
   mock self.hello_world
   mock self.hello_world(greeting)
   mock instance.say_hello
@@ -55,19 +55,19 @@ create_mock Example do
   mock instance == value
 end
 
-create_mock AnotherExample do
+Mocks.create_mock AnotherExample do
   mock self.hello_world
 end
 
-create_module_mock ModuleExample do
+Mocks.create_module_mock ModuleExample do
   mock self.hello_world
 end
 
-create_struct_mock StructTimeExample do
+Mocks.create_struct_mock StructTimeExample do
   mock self.now
 end
 
-create_double "OtherExample" do
+Mocks.create_double "OtherExample" do
   mock self.hello_world as String
   mock self.hello_world(greeting) as String
   mock instance.say_hello as String
@@ -75,15 +75,15 @@ create_double "OtherExample" do
   mock (instance.greeting = value), String
 end
 
-create_double "EqualityEdgeCase" do
+Mocks.create_double "EqualityEdgeCase" do
   mock (instance == other), Bool
 end
 
-create_mock I::Am::Namespaced do
+Mocks.create_mock I::Am::Namespaced do
   mock foo(bar)
 end
 
-create_double "Yet::Another::Namespaced" do
+Mocks.create_double "Yet::Another::Namespaced" do
   mock bar(foo) as String
 end
 
@@ -188,7 +188,7 @@ describe Mocks do
 
   describe "double" do
     it "allows to create double without stubs" do
-      example = double("OtherExample")
+      example = Mocks.double("OtherExample")
 
       allow(example).to receive(say_hello("john")).and_return("halo, john")
       example.say_hello("john").should eq("halo, john")
@@ -198,9 +198,9 @@ describe Mocks do
     end
 
     it "defines good default #==" do
-      a = double("EqualityEdgeCase")
+      a = Mocks.double("EqualityEdgeCase")
       b = a
-      c = double("EqualityEdgeCase")
+      c = Mocks.double("EqualityEdgeCase")
 
       a.should eq(b)
       a.should_not eq(c)
@@ -208,9 +208,9 @@ describe Mocks do
     end
 
     it "works when wrapped in simple object" do
-      a = double("EqualityEdgeCase")
-      b = double("EqualityEdgeCase")
-      c = double("EqualityEdgeCase")
+      a = Mocks.double("EqualityEdgeCase")
+      b = Mocks.double("EqualityEdgeCase")
+      c = Mocks.double("EqualityEdgeCase")
       allow(a).to receive(instance.==(c)).and_return(true)
 
       SimpleWrapper.new(a).should_not eq(SimpleWrapper.new(b))
@@ -218,8 +218,8 @@ describe Mocks do
     end
 
     it "allows to override default #== gracefully" do
-      a = double("EqualityEdgeCase")
-      b = double("EqualityEdgeCase")
+      a = Mocks.double("EqualityEdgeCase")
+      b = Mocks.double("EqualityEdgeCase")
       allow(a).to receive(instance.==(b)).and_return(true)
 
       a.should eq(b)
@@ -227,19 +227,19 @@ describe Mocks do
     end
 
     it "allows to define stubs as an argument" do
-      example = double("OtherExample", returns(say_hello("world"), "hello, world!"))
+      example = Mocks.double("OtherExample", returns(say_hello("world"), "hello, world!"))
       example.say_hello("world").should eq("hello, world!")
     end
 
     it "allows for allow syntax" do
-      example = double("OtherExample", returns(say_hello("world"), "hello, world!"))
+      example = Mocks.double("OtherExample", returns(say_hello("world"), "hello, world!"))
       allow(example).to receive(say_hello("john")).and_return("hi, john")
       example.say_hello("world").should eq("hello, world!")
       example.say_hello("john").should eq("hi, john")
     end
 
     it "allows to stub class methods" do
-      example = double("OtherExample")
+      example = Mocks.double("OtherExample")
       klass = example.class
 
       expect_raises Mocks::UnexpectedMethodCall, "#{klass.inspect} received unexpected method call self.hello_world[]" do
@@ -251,7 +251,7 @@ describe Mocks do
     end
 
     it "allows to define multiple stubs as an argument list" do
-      example = double("OtherExample",
+      example = Mocks.double("OtherExample",
                        returns(say_hello("world"), "hello, world!"),
                        returns(instance.greeting=("hi"), "yes, it is hi"))
 
@@ -260,7 +260,7 @@ describe Mocks do
     end
 
     it "raises UnexpectedMethodCall when there is no such stub" do
-      example = double("OtherExample",
+      example = Mocks.double("OtherExample",
                        returns(say_hello("world"), "hello, world!"),
                        returns(instance.greeting=("hi"), "yes, it is hi"))
 
@@ -271,25 +271,25 @@ describe Mocks do
     end
 
     it "returns value of correct type" do
-      example = double("OtherExample")
+      example = Mocks.double("OtherExample")
       typeof(example.say_hello("world")).should eq(String)
     end
   end
 
   describe "instance double" do
     it "can be created without stubs" do
-      example = instance_double(Example)
+      example = Mocks.instance_double(Example)
       allow(example).to receive(say_hello("jonny")).and_return("ah, jonny, there you are")
       example.say_hello("jonny").should eq("ah, jonny, there you are")
     end
 
     it "can be created with stub" do
-      example = instance_double(Example, returns(say_hello("james"), "Hi, James!"))
+      example = Mocks.instance_double(Example, returns(say_hello("james"), "Hi, James!"))
       example.say_hello("james").should eq("Hi, James!")
     end
 
     it "can be created with a list of stubs" do
-      example = instance_double(Example,
+      example = Mocks.instance_double(Example,
                                 returns(say_hello("james"), "Hi, James!"),
                                 returns(say_hello("john"), "Oh, hey, John."))
 
@@ -298,7 +298,7 @@ describe Mocks do
     end
 
     it "raises UnexpectedMethodCall when there is no such stub" do
-      example = instance_double(Example,
+      example = Mocks.instance_double(Example,
                                 returns(say_hello("james"), "Hi, James!"),
                                 returns(say_hello("john"), "Oh, hey, John."))
 
@@ -309,20 +309,20 @@ describe Mocks do
     end
 
     it "returns value of correct type" do
-      example = instance_double(Example)
+      example = Mocks.instance_double(Example)
       typeof(example.say_hello("world")).should eq(String)
     end
   end
 
   describe "class double" do
     it "can be created without stubs" do
-      example = class_double(Example)
+      example = Mocks.class_double(Example)
       allow(example).to receive(self.hello_world("hello")).and_return("hello, world")
       example.hello_world("hello").should eq("hello, world")
     end
 
     it "can be created with a list of stubs" do
-      example = class_double(Example,
+      example = Mocks.class_double(Example,
                              returns(self.hello_world("hello"), "hello, world"),
                              returns(self.hello_world("hey"), "oh, hey, world!"))
 
@@ -331,7 +331,7 @@ describe Mocks do
     end
 
     it "raises UnexpectedMethodCall when there is no such stub" do
-      example = class_double(Example,
+      example = Mocks.class_double(Example,
                              returns(self.hello_world("hello"), "hello, world"),
                              returns(self.hello_world("hey"), "oh, hey, world!"))
 
@@ -342,7 +342,7 @@ describe Mocks do
     end
 
     it "can be used to create instance_doubles with .new" do
-      example_class = class_double(Example)
+      example_class = Mocks.class_double(Example)
       example = example_class.new
 
       allow(example).to receive(say_hello("john")).and_return("hello, john!")
@@ -355,7 +355,7 @@ describe Mocks do
     end
 
     it "returns value of correct type" do
-      example = class_double(Example)
+      example = Mocks.class_double(Example)
       typeof(example.hello_world("hey")).should eq(String)
     end
   end
@@ -372,7 +372,7 @@ describe Mocks do
 
   describe "namespaced instance double" do
     it "works" do
-      example = instance_double(I::Am::Namespaced)
+      example = Mocks.instance_double(I::Am::Namespaced)
       allow(example).to receive(foo("world")).and_return("hi world")
       example.foo("world").should eq("hi world")
     end
@@ -380,7 +380,7 @@ describe Mocks do
 
   describe "namespaced class double" do
     it "works" do
-      klass = class_double(I::Am::Namespaced)
+      klass = Mocks.class_double(I::Am::Namespaced)
       example = klass.new
       allow(example).to receive(foo("bar")).and_return("barfoo")
       example.foo("bar").should eq("barfoo")
@@ -389,7 +389,7 @@ describe Mocks do
 
   describe "namespaced double" do
     it "works" do
-      example = double(Yet::Another::Namespaced)
+      example = Mocks.double(Yet::Another::Namespaced)
       allow(example).to receive(bar("foo")).and_return("foobar")
       example.bar("foo").should eq("foobar")
     end

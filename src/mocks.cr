@@ -1,8 +1,11 @@
 require "./mocks/*"
 require "./macro/*"
 
+include ::Mocks::Macro::GlobalDSL
+
 module Mocks
   extend self
+  include ::Mocks::Macro
 
   def with_reset
     reset
