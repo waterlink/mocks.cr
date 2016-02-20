@@ -6,7 +6,12 @@ module Mocks
       {% method_name = method_name.id %}
 
       def {{method_name}}({{method.args.argify}})
-        %method = ::Mocks::Registry.for(@@__mocks_name).fetch_method({{method_name.stringify}})
+        %mock_name = @@__mocks_name
+        unless %mock_name
+          raise "Assertion failed (mocks.cr): @@__mocks_name can not be nil"
+        end
+
+        %method = ::Mocks::Registry.for(%mock_name).fetch_method({{method_name.stringify}})
         {% if method.args.empty? %}
           %result = %method.call(::Mocks::Registry::ObjectId.build(self))
         {% else %}
