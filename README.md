@@ -87,6 +87,23 @@ end
 allow(Example).to receive(self.hello_world("aloha")).and_return("aloha (as 'hello'), world!")
 ```
 
+#### Mocking Struct
+
+```crystal
+struct Example
+  def now
+    Time.now
+  end
+end
+
+create_struct_mock Example do
+  mock now
+end
+
+example = Example.new
+allow(example).to receive(now).and_return(Time.new(2014, 12, 22))
+```
+
 ### Double
 
 Caution: doubles require return types.
