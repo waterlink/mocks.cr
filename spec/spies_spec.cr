@@ -7,7 +7,7 @@ module SpiesTest
     end
   end
 
-  create_mock SpiesTest::Person do
+  Mocks.create_mock SpiesTest::Person do
     mock greet(who)
   end
 
@@ -17,7 +17,7 @@ module SpiesTest
     end
   end
 
-  create_module_mock SpiesTest::ExampleModule do
+  Mocks.create_module_mock SpiesTest::ExampleModule do
     mock self.greet(who)
   end
 

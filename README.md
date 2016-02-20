@@ -19,6 +19,43 @@ dependencies:
 require "mocks"
 ```
 
+### Usage with `spec` library
+
+```crystal
+require "mocks/spec"
+```
+
+This will automatically register `Mocks.reset` hooks in `before_each` and
+`after_each`. Additionally it makes `allow`, `receive` and `have_received`
+available in global scope.
+
+If you need all of macros (such as: `create_mock, create_double, double,
+instance_double, etc.`) to be available in global scope use `include
+::Mocks::Macro`.
+
+### Usage with `spec2` library
+
+First add [`spec2-mocks`](https://github.com/waterlink/spec2-mocks.cr) to your
+dependencies:
+
+```yaml
+dependencies:
+  mocks:
+    github: waterlink/mocks.cr
+  spec2:
+    github: waterlink/spec2.cr
+  spec2-mocks:
+    github: waterlink/spec2.cr
+```
+
+Run `crystal deps update` and do:
+
+```crystal
+require "spec2-mocks"
+```
+
+This should be enough to start using mocks together with spec2.
+
 ### Partial double
 
 ```crystal
@@ -28,7 +65,7 @@ class Example
   end
 end
 
-create_mock Example do
+Mocks.create_mock Example do
   mock say_hello(name)
   # or
   # mock instance.say_hello(name)
@@ -60,7 +97,7 @@ mock instance.==(other)
 Just use `mock self.method_name(args..)`
 
 ```crystal
-create_mock Example do
+Mocks.create_mock Example do
   mock self.hello_world(greeting)
 end
 
@@ -80,7 +117,7 @@ module Example
   end
 end
 
-create_module_mock Example do
+Mocks.create_module_mock Example do
   mock self.hello_world(greeting)
 end
 
@@ -96,7 +133,7 @@ struct Example
   end
 end
 
-create_struct_mock Example do
+Mocks.create_struct_mock Example do
   mock now
 end
 
@@ -109,7 +146,7 @@ allow(example).to receive(now).and_return(Time.new(2014, 12, 22))
 Caution: doubles require return types.
 
 ```crystal
-create_double "OtherExample" do
+Mocks.create_double "OtherExample" do
   mock say_hello(name) as String
   mock greetings_count as Int64
 
@@ -119,7 +156,7 @@ create_double "OtherExample" do
   mock (instance == other), Bool
 end
 
-example = double("OtherExample", returns(say_hello("world"), "hello world!"))
+example = Mocks.double("OtherExample", returns(say_hello("world"), "hello world!"))
 allow(example).to receive(instance.greeting=("hey")).and_return("hey")
 
 example.say_hello("world")     #=> "hello world!"
@@ -131,7 +168,7 @@ example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Mocks::Doubles
 After defining `Example`'s mock with `create_mock` you can use it as an `instance_double`:
 
 ```crystal
-example = instance_double(Example, returns(say_hello("world"), "hello, world!"))
+example = Mocks.instance_double(Example, returns(say_hello("world"), "hello, world!"))
 allow(example).to receive(say_hello("sarah")).and_return("Hey, Sarah!")
 
 example.say_hello("world")     #=> "hello world!"
@@ -144,7 +181,7 @@ example.say_hello("john")      #=> Mocks::UnexpectedMethodCall: #<Mocks::Instanc
 After defining `Example`'s mock with `create_mock` you can use it as a `class_double`:
 
 ```crystal
-example_class = class_double(Example, returns(self.hello_world("aloha"), "aloha, world!"))
+example_class = Mocks.class_double(Example, returns(self.hello_world("aloha"), "aloha, world!"))
 allow(example_class).to receive(self.hello_world("hi")).and_return("hey, world!")
 
 example_class.hello_world("aloha")            # => "aloha, world!"
@@ -157,7 +194,7 @@ example_class.hello_world("halo")             # => Mocks::UnexpectedMethodCall: 
 It returns normal `instance_double`:
 
 ```crystal
-example_class = class_double(Example)
+example_class = Mocks.class_double(Example)
 example_class.new          # => #<Mocks::InstanceDoubles::Example:0x109498F00>
 ```
 

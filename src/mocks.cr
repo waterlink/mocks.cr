@@ -3,6 +3,7 @@ require "./macro/*"
 
 module Mocks
   extend self
+  include ::Mocks::Macro
 
   def with_reset
     reset

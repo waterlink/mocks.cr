@@ -6,11 +6,11 @@ module MyModule
   end
 end
 
-create_module_mock MyModule do
+Mocks.create_module_mock MyModule do
   mock self.exists?(name)
 end
 
-create_mock File do
+Mocks.create_mock File do
   mock self.exists?(name)
 end
 
