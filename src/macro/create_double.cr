@@ -14,6 +14,10 @@ module Mocks
               false
             end
 
+            macro mock(*args)
+              _mock(\{{args.argify}})
+            end
+
             {{block.body}}
           end
         end
