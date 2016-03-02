@@ -43,7 +43,7 @@ module Mocks
         if %result.call_original
 
           {% if method_name.stringify == "==" %}
-            previous_def as {{return_type.id}}
+            self.same?({{method.args.argify}})
           {% else %}
 
             raise ::Mocks::UnexpectedMethodCall.new(
