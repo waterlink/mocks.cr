@@ -7,7 +7,9 @@ module Mocks
       {% method_name = "self.#{method_name.id}" if self_receiver %}
       {% method_name = method_name.id %}
 
-      {% inherited = (!self_receiver && !@type.methods.map(&.name).includes?(method_name)) || flag == :inherited %}
+      {% equals_method = method_name == "==".id %}
+
+      {% inherited = (!equals_method && !self_receiver && !@type.methods.map(&.name).includes?(method_name)) || flag == :inherited %}
       {% previous = (inherited ? :super : :previous_def).id %}
 
       def {{method_name}}({{method.args.argify}})
