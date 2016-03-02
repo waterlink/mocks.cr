@@ -73,7 +73,7 @@ describe "Inheritance" do
     s.add(7).should eq(42)
   end
 
-  it "works with struct instance methods" do
+  it "works with struct class methods" do
     allow(StructDerived).to receive(self.add(7)).and_return(42)
     StructDerived.add(7).should eq(42)
   end
