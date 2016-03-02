@@ -14,6 +14,10 @@ module Mocks
               false
             end
 
+            def hash
+              object_id
+            end
+
             macro mock(*args)
               _mock(\{{args.argify}})
             end
