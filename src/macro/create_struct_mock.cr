@@ -19,8 +19,8 @@ module Mocks
           false
         end
 
-        macro mock(method_spec)
-          mock(\{{method_spec}}, nil, ::{{name.id}}.allocate)
+        macro mock(method_spec, flag = :normal)
+          _mock(\{{method_spec}}, nil, ::{{name.id}}.allocate)
         end
 
         {{block.body}}

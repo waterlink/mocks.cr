@@ -111,6 +111,8 @@ module Mocks
     end
 
     class Method
+      @@disable_recording = false
+
       @stubs : CallHash
       @received : CallHash
       @last_args : CallHash
@@ -126,8 +128,7 @@ module Mocks
       end
 
       def call(object_id, args)
-        received.add(object_id, args, Result.new(false, true))
-        last_args.add(object_id, NoArgs.new, Result.new(false, args))
+        record_call(object_id, args)
         stubs.fetch(object_id, args, Result.new(true, nil))
       end
 
@@ -149,6 +150,18 @@ module Mocks
         last_args
           .fetch(object_id, NoArgs.new, Result.new(true, nil))
           .value
+      end
+
+      private def record_call(object_id, args)
+        return if @@disable_recording
+
+        begin
+          @@disable_recording = true
+          received.add(object_id, args, Result.new(false, true))
+          last_args.add(object_id, NoArgs.new, Result.new(false, args))
+        ensure
+          @@disable_recording = false
+        end
       end
     end
 

@@ -1,6 +1,6 @@
 module Mocks
   class BaseDouble
-    macro mock(method_spec, return_type = nil, sample = nil)
+    macro _mock(method_spec, return_type = nil, sample = nil)
       {% if sample %}
         {% method = method_spec %}
 

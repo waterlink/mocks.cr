@@ -1,9 +1,16 @@
 module Mocks
   module BaseMock
-    macro mock(method)
+    macro mock(method, flag = :normal)
+      {% self_receiver = method.receiver.stringify == "self" %}
+
       {% method_name = method.name.stringify %}
-      {% method_name = "self.#{method_name.id}" if method.receiver.stringify == "self" %}
+      {% method_name = "self.#{method_name.id}" if self_receiver %}
       {% method_name = method_name.id %}
+
+      {% equals_method = method_name == "==".id %}
+
+      {% inherited = (!equals_method && !self_receiver && !@type.methods.map(&.name).includes?(method_name)) || flag == :inherited %}
+      {% previous = (inherited ? :super : :previous_def).id %}
 
       def {{method_name}}({{method.args.argify}})
         %mock_name = @@__mocks_name
@@ -19,13 +26,13 @@ module Mocks
         {% end %}
 
         if %result.call_original
-          previous_def
+          {{previous}}
         else
-          if %result.value.is_a?(typeof(previous_def))
-            %result.value as typeof(previous_def)
+          if %result.value.is_a?(typeof({{previous}}))
+            %result.value as typeof({{previous}})
           else
             %type_error = "#{self.inspect} attempted to return stubbed value of wrong type, while calling"
-            %type_error_detail = "Expected type: #{typeof(previous_def)}. Actual type: #{ %result.value.class }"
+            %type_error_detail = "Expected type: #{typeof({{previous}})}. Actual type: #{ %result.value.class }"
             raise ::Mocks::UnexpectedMethodCall.new(
               {% if method.args.empty? %}
                 "#{ %type_error } {{method_name}}[]. #{ %type_error_detail }"
