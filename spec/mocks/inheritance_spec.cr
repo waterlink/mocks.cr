@@ -15,7 +15,7 @@ end
 
 Mocks.create_mock Derived do
   mock hello
-  mock self.hello, :inherited
+  mock self.hello
 end
 
 module BaseModule
@@ -29,7 +29,7 @@ module DerivedModule
 end
 
 Mocks.create_module_mock DerivedModule do
-  mock self.hello, :inherited
+  mock self.hello
 end
 
 struct StructBase
@@ -47,7 +47,7 @@ end
 
 Mocks.create_struct_mock StructDerived do
   mock add(x)
-  mock self.add(x), :inherited
+  mock self.add(x)
 end
 
 describe "Inheritance" do

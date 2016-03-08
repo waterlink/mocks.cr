@@ -13,6 +13,8 @@ dependencies:
     version: 0.8.0
 ```
 
+This shard requires version of Crystal minimum `0.13.0`.
+
 ## Usage
 
 ```crystal
@@ -123,34 +125,6 @@ end
 
 allow(Example).to receive(self.hello_world("aloha")).and_return("aloha (as 'hello'), world!")
 ```
-
-#### Inherited class and module `self.*` methods
-
-If you end up with such compile error:
-
-```
-there is no previous definition of 'method-name'
-```
-
-Most probably, you are trying to mock an inherited class or module method in a
-form of `self.method-name`.
-
-In this case you will have to explicitly tell `mocks` library, that this method
-is inherited, via flag:
-
-```crystal
-create_mock DerivedClass do
-  def self.method_name(arg1, arg2), :inherited
-end
-
-# or for module
-create_module_mock DerivedModule do
-  def self.method_name(arg1, arg2), :inherited
-end
-```
-
-If you happen to override this method in derived class or module, be sure to
-remove `:inherited` flag, otherwise, behavior is undefined.
 
 #### Mocking Struct
 

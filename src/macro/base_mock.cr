@@ -1,7 +1,12 @@
 module Mocks
   module BaseMock
     macro mock(method, flag = :normal)
+      {% if flag == :inherited %}
+        {% puts "[WARN] mocks.cr: Deprecated usage of ':inherited' flag - this is no longer required" %}
+      {% end %}
+
       {% self_receiver = method.receiver.stringify == "self" %}
+      {% original_name = method.name.id %}
 
       {% method_name = method.name.stringify %}
       {% method_name = "self.#{method_name.id}" if self_receiver %}
@@ -9,7 +14,9 @@ module Mocks
 
       {% equals_method = method_name == "==".id %}
 
-      {% inherited = (!equals_method && !self_receiver && !@type.methods.map(&.name).includes?(method_name)) || flag == :inherited %}
+      {% inherited = (!equals_method && !self_receiver && !@type.methods.map(&.name).includes?(original_name)) || flag == :inherited %}
+      {% inherited = inherited || (self_receiver && !@type.class.methods.map(&.name).includes?(original_name)) %}
+
       {% previous = (inherited ? :super : :previous_def).id %}
 
       def {{method_name}}({{method.args.argify}})
