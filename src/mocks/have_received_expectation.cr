@@ -11,8 +11,16 @@ module Mocks
       "expected: #{expected}\n     got: #{got}"
     end
 
+    def failure_message(_ignored)
+      failure_message
+    end
+
     def negative_failure_message
       "expected: receive != #{expected}\n     got: #{got}"
+    end
+
+    def negative_failure_message(_ignored)
+      negative_failure_message
     end
 
     private def method
