@@ -12,7 +12,7 @@ module Mocks
   end
 
   def reset
-    Registry.reset!
+    reset_registries
   end
 
   class UnexpectedMethodCall < Exception; end

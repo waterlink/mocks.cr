@@ -9,9 +9,9 @@ module Mocks
         {% method_name = method_name.id %}
 
         {% if method.receiver.stringify == "self" %}
-             {% return_type = "typeof(typeof(#{sample}).#{method.name}(#{method.args.argify}))" %}
+          {% return_type = "typeof(typeof(#{sample}).#{method.name}(#{method.args.argify}))" %}
         {% else %}
-             {% return_type = "typeof(#{sample}.#{method.name}(#{method.args.argify}))".id %}
+          {% return_type = "typeof(#{sample}.#{method.name}(#{method.args.argify}))".id %}
         {% end %}
       {% else %}
 
@@ -32,13 +32,19 @@ module Mocks
       {% end %}
 
       def {{method_name}}({{method.args.argify}})
-        %method = ::Mocks::Registry.for(@@name).fetch_method("{{method_name}}")
-
         {% if method.args.empty? %}
-          %result = %method.call(::Mocks::Registry::ObjectId.build(self))
+          {% args_tuple = "nil".id %}
         {% else %}
-          %result = %method.call(::Mocks::Registry::ObjectId.build(self), [{{method.args.argify}}])
+          {% args_tuple = "{#{method.args.argify}}".id %}
         {% end %}
+
+        {% args_types = "typeof(#{args_tuple})".id %}
+
+        ::Mocks::Registry.remember({{args_types}})
+
+        %method = ::Mocks::Registry({{args_types}}).for(@@name).fetch_method("{{method_name}}")
+
+        %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{args_tuple}})
 
         if %result.call_original
 

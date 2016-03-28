@@ -25,12 +25,18 @@ module Mocks
           raise "Assertion failed (mocks.cr): @@__mocks_name can not be nil"
         end
 
-        %method = ::Mocks::Registry.for(%mock_name).fetch_method({{method_name.stringify}})
         {% if method.args.empty? %}
-          %result = %method.call(::Mocks::Registry::ObjectId.build(self))
+          {% args_tuple = "nil".id %}
         {% else %}
-          %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{method.args}})
+          {% args_tuple = "{#{method.args.argify}}".id %}
         {% end %}
+
+        {% args_types = "typeof(#{args_tuple})".id %}
+
+        ::Mocks::Registry.remember({{args_types}})
+
+        %method = ::Mocks::Registry({{args_types}}).for(%mock_name).fetch_method({{method_name.stringify}})
+        %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{args_tuple}})
 
         if %result.call_original
           {{previous}}
