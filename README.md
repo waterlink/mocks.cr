@@ -10,7 +10,7 @@ Add it to `shard.yml`:
 dependencies:
   mocks:
     github: waterlink/mocks.cr
-    version: 0.9.0
+    version: 0.9.1
 ```
 
 This shard requires version of Crystal minimum `0.13.0`.
