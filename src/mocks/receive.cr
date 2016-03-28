@@ -12,5 +12,9 @@ module Mocks
     def and_return(value)
       Message.new(self, value)
     end
+
+    def registry_for_its_args
+      Registry(T)
+    end
   end
 end

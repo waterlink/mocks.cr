@@ -1,5 +1,17 @@
 module Mocks
-  class Registry
+  RESETTERS = {} of String => ->
+
+  def self.reset_registries
+    RESETTERS.each do |k, reset|
+      reset.call
+    end
+
+    Registry::Method::LAST_ARGS.keys.each do |key|
+      Registry::Method::LAST_ARGS.delete(key)
+    end
+  end
+
+  class Registry(T)
     module ResultInterface
       abstract def result
       abstract def downcast
@@ -42,89 +54,35 @@ module Mocks
       protected getter value
     end
 
-    module ArgsInterface
-      abstract def ==(other)
-      abstract def hash
-      abstract def downcast
-    end
-
-    class Args(T)
-      include ArgsInterface
-
-      @value : T
-      getter value
-
-      def initialize(@value : T)
-      end
-
-      def ==(other : ArgsInterface)
-        self.value == other.value
-      end
-
-      def ==(other)
-        false
-      end
-
-      def hash
-        value.hash
-      end
-
-      def downcast
-        self
-      end
-    end
-
-    class StubKey
-      @id : ObjectId
-      @args : ArgsInterface
-      getter id, args
-      def initialize(@id, @args)
-      end
-
-      def ==(other : self)
-        self.id == other.id &&
-          self.args.downcast == other.args.downcast
-      end
-
-      def hash
-        {id, args}.hash
-      end
-    end
-
-    class CallHash
-      @hash : Hash(StubKey, ResultInterface)
+    class CallHash(T)
+      @hash : Hash({ObjectId, T}, ResultInterface)
       getter hash
 
       def initialize
-        @hash = {} of StubKey => ResultInterface
+        @hash = {} of {ObjectId, T} => ResultInterface
       end
 
-      def add(object_id, args, result)
-        key = StubKey.new(object_id, Args.new(args))
-        hash[key] = ResultWrapper.new(result)
+      def add(object_id, args : T, result)
+        hash[{object_id, args}] = ResultWrapper.new(result)
       end
 
-      def fetch(object_id, args, result)
-        key = StubKey.new(object_id, Args.new(args))
-        hash.fetch(key, ResultWrapper.new(result)).result
+      def fetch(object_id, args : T, result)
+        hash.fetch({object_id, args}, ResultWrapper.new(result)).result
       end
     end
 
-    class Method
-      @@disable_recording = false
+    class Method(T)
+      LAST_ARGS = {} of {String, String, ObjectId} => String
+      RUNTIME = {:recording => true}
 
-      @stubs : CallHash
-      @received : CallHash
-      @last_args : CallHash
-      getter stubs, received, last_args
-      def initialize
-        @stubs = CallHash.new
-        @received = CallHash.new
-        @last_args = CallHash.new
-      end
-
-      def call(object_id)
-        call(object_id, NoArgs.new)
+      @stubs : CallHash(T)
+      @received : CallHash(T)
+      getter stubs, received, registry_name, name
+      def initialize(registry_name, name)
+        @registry_name = registry_name
+        @name = name
+        @stubs = CallHash(T).new
+        @received = CallHash(T).new
       end
 
       def call(object_id, args)
@@ -136,10 +94,6 @@ module Mocks
         stubs.add(object_id, args, Result.new(false, value))
       end
 
-      def received?(object_id)
-        received?(object_id, NoArgs.new)
-      end
-
       def received?(object_id, args)
         received
           .fetch(object_id, args, Result.new(true, false))
@@ -147,25 +101,36 @@ module Mocks
       end
 
       def last_received_args(object_id)
-        last_args
-          .fetch(object_id, NoArgs.new, Result.new(true, nil))
-          .value
+        LAST_ARGS[{registry_name, name, object_id}]?
       end
 
       private def record_call(object_id, args)
-        return if @@disable_recording
+        return unless recording?
 
         begin
-          @@disable_recording = true
+          disable_recording
           received.add(object_id, args, Result.new(false, true))
-          last_args.add(object_id, NoArgs.new, Result.new(false, args))
+          LAST_ARGS[{registry_name, name, object_id}] = args ? args.to_a.inspect : "[]"
         ensure
-          @@disable_recording = false
+          enable_recording
         end
+      end
+
+      private def recording?
+        RUNTIME[:recording]
+      end
+
+      private def enable_recording
+        RUNTIME[:recording] = true
+      end
+
+      private def disable_recording
+        RUNTIME[:recording] = false
       end
     end
 
     def self.for(name)
+      RESETTERS[self.name] ||= -> { self.reset! }
       instances[name] = instances.fetch(name) {
         new(name)
       }
@@ -179,18 +144,21 @@ module Mocks
       @@_instances = {} of String => self
     end
 
-    @methods : Hash(String, Method)
+    @methods : Hash(String, Method(T))
     @name : String
     getter methods
 
     def initialize(@name)
-      @methods = {} of String => Method
+      @methods = {} of String => Method(T)
     end
 
     def fetch_method(method_name)
       methods[method_name] = methods.fetch(method_name) {
-        Method.new
+        Method(T).new(@name, method_name)
       }
+    end
+
+    macro remember(t)
     end
 
     class Result(T)
@@ -199,20 +167,6 @@ module Mocks
       getter call_original, value
 
       def initialize(@call_original, @value : T)
-      end
-    end
-
-    class NoArgs
-      def ==(other : NoArgs)
-        true
-      end
-
-      def ==(other)
-        false
-      end
-
-      def hash
-        0
       end
     end
   end

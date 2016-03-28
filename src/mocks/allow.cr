@@ -13,7 +13,8 @@ module Mocks
     end
 
     def to(message)
-      Mocks::Registry
+      message
+        .registry_for_its_args
         .for(subject_name)
         .fetch_method(message.method_name)
         .store_stub(object_id, message.args, message.value)
