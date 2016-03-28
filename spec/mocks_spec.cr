@@ -207,7 +207,7 @@ describe Mocks do
       a.should_not eq(59)
     end
 
-    pending "works when wrapped in simple object" do
+    it "works when wrapped in simple object" do
       a = Mocks.double("EqualityEdgeCase")
       b = Mocks.double("EqualityEdgeCase")
       c = Mocks.double("EqualityEdgeCase")
@@ -217,7 +217,7 @@ describe Mocks do
       SimpleWrapper.new(a).should eq(SimpleWrapper.new(c))
     end
 
-    pending "allows to override default #== gracefully" do
+    it "allows to override default #== gracefully" do
       a = Mocks.double("EqualityEdgeCase")
       b = Mocks.double("EqualityEdgeCase")
       allow(a).to receive(instance.==(b)).and_return(true)
