@@ -28,7 +28,7 @@ module SpiesTest
     it "fails when there was no call" do
       p = Person.new
       expectation.match(p).should eq(false)
-      expectation.failure_message
+      expectation.failure_message(p)
         .should eq("expected: greet[\"world\"]\n     got: nil")
     end
 
@@ -36,7 +36,7 @@ module SpiesTest
       p = Person.new
       p.greet("world")
       expectation.match(p).should eq(true)
-      expectation.negative_failure_message
+      expectation.negative_failure_message(p)
         .should eq("expected: receive != greet[\"world\"]\n     got: greet[\"world\"]")
     end
 
@@ -44,7 +44,7 @@ module SpiesTest
       p = Person.new
       p.greet("John")
       expectation.match(p).should eq(false)
-      expectation.failure_message
+      expectation.failure_message(p)
         .should eq("expected: greet[\"world\"]\n     got: greet[\"John\"]")
     end
 

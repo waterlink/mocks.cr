@@ -13,8 +13,8 @@ module Mocks
       Message.new(self, value)
     end
 
-    def registry_for_its_args
-      Registry(T)
+    def registry_for_its_args(name)
+      Registry(T).for(name)
     end
   end
 end

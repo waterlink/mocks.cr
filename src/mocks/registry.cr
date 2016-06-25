@@ -1,13 +1,24 @@
+require "singleton"
+
 module Mocks
-  RESETTERS = {} of String => ->
+  REGISTRIES = [] of Registry.class
 
   def self.reset_registries
-    RESETTERS.each do |k, reset|
-      reset.call
-    end
+    Singleton.reset
 
     Registry::Method::LAST_ARGS.keys.each do |key|
       Registry::Method::LAST_ARGS.delete(key)
+    end
+  end
+
+  class RegistryInstances(T)
+    getter get : Hash(String, T)
+    def initialize
+      @get = {} of String => T
+    end
+
+    def self.instance
+      Singleton.instance_of(self)
     end
   end
 
@@ -77,6 +88,8 @@ module Mocks
 
       @stubs : CallHash(T)
       @received : CallHash(T)
+      @registry_name : String
+      @name : String
       getter stubs, received, registry_name, name
       def initialize(registry_name, name)
         @registry_name = registry_name
@@ -130,18 +143,13 @@ module Mocks
     end
 
     def self.for(name)
-      RESETTERS[self.name] ||= -> { self.reset! }
       instances[name] = instances.fetch(name) {
         new(name)
       }
     end
 
     def self.instances
-      @@_instances ||= reset!
-    end
-
-    def self.reset!
-      @@_instances = {} of String => self
+      RegistryInstances(self).instance.get
     end
 
     @methods : Hash(String, Method(T))

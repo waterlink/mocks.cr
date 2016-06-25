@@ -5,3 +5,8 @@ authors:
 - Oleksii Fedorov <waterlink000@gmail.com>
 
 license: MIT
+
+dependencies:
+  singleton:
+    github: waterlink/singleton.cr
+    version: ~> 0.1

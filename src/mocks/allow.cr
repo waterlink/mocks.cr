@@ -14,8 +14,7 @@ module Mocks
 
     def to(message)
       message
-        .registry_for_its_args
-        .for(subject_name)
+        .registry_for_its_args(subject_name)
         .fetch_method(message.method_name)
         .store_stub(object_id, message.args, message.value)
     end

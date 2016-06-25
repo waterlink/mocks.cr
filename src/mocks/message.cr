@@ -19,8 +19,8 @@ module Mocks
       receive.args
     end
 
-    def registry_for_its_args
-      receive.registry_for_its_args
+    def registry_for_its_args(name)
+      receive.registry_for_its_args(name)
     end
   end
 end

@@ -4,3 +4,6 @@
 /libs/
 
 /.watch.out
+
+/.shards/
+/shard.lock

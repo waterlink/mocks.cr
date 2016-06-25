@@ -32,7 +32,7 @@ Mocks.create_module_mock DerivedModule do
   mock self.hello
 end
 
-struct StructBase
+abstract struct StructBase
   def add(x)
     37
   end
