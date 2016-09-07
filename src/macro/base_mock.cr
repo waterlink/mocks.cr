@@ -42,7 +42,7 @@ module Mocks
           {{previous}}
         else
           if %result.value.is_a?(typeof({{previous}}))
-            %result.value as typeof({{previous}})
+            %result.value.as(typeof({{previous}}))
           else
             %type_error = "#{self.inspect} attempted to return stubbed value of wrong type, while calling"
             %type_error_detail = "Expected type: #{typeof({{previous}})}. Actual type: #{ %result.value.class }"

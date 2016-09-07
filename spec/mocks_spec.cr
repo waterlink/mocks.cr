@@ -34,7 +34,7 @@ module ModuleExample
   end
 end
 
-class I::Am::Namespaced
+class This::Is::Namespaced
   def foo(bar)
     bar
   end
@@ -68,10 +68,10 @@ Mocks.create_struct_mock StructTimeExample do
 end
 
 Mocks.create_double "OtherExample" do
-  mock self.hello_world as String
-  mock self.hello_world(greeting) as String
-  mock instance.say_hello as String
-  mock instance.say_hello(name) as String
+  mock self.hello_world.as(String)
+  mock self.hello_world(greeting).as(String)
+  mock instance.say_hello.as(String)
+  mock instance.say_hello(name).as(String)
   mock (instance.greeting = value), String
 end
 
@@ -79,12 +79,12 @@ Mocks.create_double "EqualityEdgeCase" do
   mock (instance == other), Bool
 end
 
-Mocks.create_mock I::Am::Namespaced do
+Mocks.create_mock This::Is::Namespaced do
   mock foo(bar)
 end
 
 Mocks.create_double "Yet::Another::Namespaced" do
-  mock bar(foo) as String
+  mock bar(foo).as(String)
 end
 
 class SimpleWrapper(T)
@@ -362,7 +362,7 @@ describe Mocks do
 
   describe "namespaced partial double" do
     it "works" do
-      example = I::Am::Namespaced.new
+      example = This::Is::Namespaced.new
       example.foo("bar").should eq("bar")
 
       allow(example).to receive(foo("bar")).and_return("hello world")
@@ -372,7 +372,7 @@ describe Mocks do
 
   describe "namespaced instance double" do
     it "works" do
-      example = Mocks.instance_double(I::Am::Namespaced)
+      example = Mocks.instance_double(This::Is::Namespaced)
       allow(example).to receive(foo("world")).and_return("hi world")
       example.foo("world").should eq("hi world")
     end
@@ -380,7 +380,7 @@ describe Mocks do
 
   describe "namespaced class double" do
     it "works" do
-      klass = Mocks.class_double(I::Am::Namespaced)
+      klass = Mocks.class_double(This::Is::Namespaced)
       example = klass.new
       allow(example).to receive(foo("bar")).and_return("barfoo")
       example.foo("bar").should eq("barfoo")

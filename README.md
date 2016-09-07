@@ -149,8 +149,8 @@ Caution: doubles require return types.
 
 ```crystal
 Mocks.create_double "OtherExample" do
-  mock say_hello(name) as String
-  mock greetings_count as Int64
+  mock say_hello(name).as(String)
+  mock greetings_count.as(Int64)
 
   # For setters and operators this is the only syntax allowed:
   # ( parenthesis are mandatory not to confuse Crystal's parser )
