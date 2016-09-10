@@ -19,7 +19,7 @@ module Mocks
           {% method = method_spec %}
         {% else %}
           {% raise %{create_double's `mock` requires type annotation.
-                     Format: mock #{method_spec} as ReturnTypeHere
+                     Format: mock #{method_spec}.as(ReturnTypeHere)
           } unless method_spec.is_a?(Cast) %}
 
           {% method = method_spec.obj %}
@@ -49,7 +49,7 @@ module Mocks
         if %result.call_original
 
           {% if method_name.stringify == "==" %}
-            previous_def as {{return_type.id}}
+            previous_def.as({{return_type.id}})
           {% else %}
 
             raise ::Mocks::UnexpectedMethodCall.new(
@@ -64,7 +64,7 @@ module Mocks
 
         else
           if %result.value.is_a?({{return_type.id}})
-            %result.value as {{return_type.id}}
+            %result.value.as({{return_type.id}})
           else
             raise ::Mocks::UnexpectedMethodCall.new(
               {% if method.args.empty? %}
