@@ -9,7 +9,7 @@ module Mocks
         {% if method.args.empty? %}
           ::Mocks::Receive(Nil).new("{{method_name}}", nil)
         {% else %}
-          {% args_tuple = "{#{method.args.argify}}".id %}
+          {% args_tuple = "{#{method.args.splat}}".id %}
           {% args_types = "typeof(#{args_tuple})".id %}
           ::Mocks::Receive({{args_types}}).new("{{method_name}}", {{args_tuple}})
         {% end %}
