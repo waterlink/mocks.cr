@@ -19,7 +19,7 @@ module Mocks
             end
 
             macro mock(*args)
-              _mock(\{{args.argify}})
+              _mock(\{{args.splat}})
             end
 
             {{block.body}}

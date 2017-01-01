@@ -9,9 +9,9 @@ module Mocks
         {% method_name = method_name.id %}
 
         {% if method.receiver.stringify == "self" %}
-          {% return_type = "typeof(typeof(#{sample}).#{method.name}(#{method.args.argify}))" %}
+          {% return_type = "typeof(typeof(#{sample}).#{method.name}(#{method.args.splat}))" %}
         {% else %}
-          {% return_type = "typeof(#{sample}.#{method.name}(#{method.args.argify}))".id %}
+          {% return_type = "typeof(#{sample}.#{method.name}(#{method.args.splat}))".id %}
         {% end %}
       {% else %}
 
@@ -23,7 +23,7 @@ module Mocks
           } unless method_spec.is_a?(Cast) %}
 
           {% method = method_spec.obj %}
-          {% return_type ||= method_spec.to %}
+          {% return_type = method_spec.to %}
         {% end %}
 
         {% method_name = method.name.stringify %}
@@ -31,11 +31,11 @@ module Mocks
         {% method_name = method_name.id %}
       {% end %}
 
-      def {{method_name}}({{method.args.argify}})
+      def {{method_name}}({{method.args.splat}})
         {% if method.args.empty? %}
           {% args_tuple = "nil".id %}
         {% else %}
-          {% args_tuple = "{#{method.args.argify}}".id %}
+          {% args_tuple = "{#{method.args.splat}}".id %}
         {% end %}
 
         {% args_types = "typeof(#{args_tuple})".id %}
@@ -56,7 +56,7 @@ module Mocks
               {% if method.args.empty? %}
                 "#{self.inspect} received unexpected method call {{method_name}}[]"
               {% else %}
-                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.argify}}]}"
+                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.splat}}]}"
               {% end %}
             )
 
@@ -70,7 +70,7 @@ module Mocks
               {% if method.args.empty? %}
                 "#{self.inspect} received unexpected method call {{method_name}}[]"
               {% else %}
-                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.argify}}]}"
+                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.splat}}]}"
               {% end %}
             )
           end

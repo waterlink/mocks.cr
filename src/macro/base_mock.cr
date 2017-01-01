@@ -19,7 +19,7 @@ module Mocks
 
       {% previous = (inherited ? :super : :previous_def).id %}
 
-      def {{method_name}}({{method.args.argify}})
+      def {{method_name}}({{method.args.splat}})
         %mock_name = @@__mocks_name
         unless %mock_name
           raise "Assertion failed (mocks.cr): @@__mocks_name can not be nil"
@@ -28,7 +28,7 @@ module Mocks
         {% if method.args.empty? %}
           {% args_tuple = "nil".id %}
         {% else %}
-          {% args_tuple = "{#{method.args.argify}}".id %}
+          {% args_tuple = "{#{method.args.splat}}".id %}
         {% end %}
 
         {% args_types = "typeof(#{args_tuple})".id %}
@@ -50,7 +50,7 @@ module Mocks
               {% if method.args.empty? %}
                 "#{ %type_error } {{method_name}}[]. #{ %type_error_detail }"
               {% else %}
-                "#{ %type_error } {{method_name}}#{[{{method.args.argify}}]}. #{ %type_error_detail }"
+                "#{ %type_error } {{method_name}}#{[{{method.args.splat}}]}. #{ %type_error_detail }"
               {% end %}
             )
           end
