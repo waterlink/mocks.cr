@@ -18,7 +18,7 @@ module Mocks
     end
 
     def self.instance
-      Singleton.instance_of(self)
+      Singleton::Of(self).instance
     end
   end
 
