@@ -47,7 +47,7 @@ module Mocks
     end
 
     def expected_args
-      @receive.args ? @receive.args.to_a.inspect : "[]"
+      (@receive.args || [] of String).to_a.inspect
     end
 
     private def last_args(target)

@@ -15,10 +15,15 @@ module SpiesTest
     def self.greet(who)
       "hey #{who} from module"
     end
+
+    def self.foo
+      "hello world"
+    end
   end
 
   Mocks.create_module_mock SpiesTest::ExampleModule do
     mock self.greet(who)
+    mock self.foo
   end
 
   describe "Spies" do
@@ -71,6 +76,11 @@ module SpiesTest
     it "works with module mock" do
       ExampleModule.greet("John")
       ExampleModule.should have_received(self.greet("John"))
+    end
+
+    it "works with module mock and no args" do
+      ExampleModule.foo
+      ExampleModule.should have_received(self.foo)
     end
   end
 end
