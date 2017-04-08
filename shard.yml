@@ -1,10 +1,10 @@
---- 
+---
 name: mocks
-version: 0.9.4
-authors: 
-  - Oleksii Fedorov <waterlink000@gmail.com>
+version: 0.9.5
+authors:
+- Oleksii Fedorov <waterlink000@gmail.com>
 license: MIT
-dependencies: 
-  singleton: 
+dependencies:
+  singleton:
     github: waterlink/singleton.cr
     version: ~> 1.0
