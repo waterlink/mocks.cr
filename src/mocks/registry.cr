@@ -108,8 +108,30 @@ module Mocks
       end
     end
 
+    class LastArgsKey
+      protected getter registry_name
+      protected getter name
+      protected getter object_id
+      def initialize(@registry_name : String, @name : String, @object_id : ObjectId)
+      end
+
+      def ==(other : LastArgsKey)
+        self.registry_name == other.registry_name &&
+          self.name == other.name &&
+          self.object_id == other.object_id
+      end
+
+      def hash
+        @registry_name.hash * 32 * 32 + @name.hash * 32 + @object_id.hash
+      end
+
+      def inspect(io)
+        io << "LastArgsKey{registry_name=#{@registry_name.inspect},name=#{@name.inspect},object_id=#{@object_id.inspect}}"
+      end
+    end
+
     class Method(T)
-      LAST_ARGS = {} of {String, String, ObjectId} => String
+      LAST_ARGS = {} of LastArgsKey => String
       RUNTIME = {:recording => true}
 
       @stubs : CallHash(T)
@@ -140,7 +162,7 @@ module Mocks
       end
 
       def last_received_args(object_id)
-        LAST_ARGS[{registry_name, name, object_id}]?
+        LAST_ARGS[LastArgsKey.new(registry_name, name, object_id)]?
       end
 
       private def record_call(object_id, args)
@@ -149,7 +171,7 @@ module Mocks
         begin
           disable_recording
           received.add(object_id, args, Result.new(false, true))
-          LAST_ARGS[{registry_name, name, object_id}] = args ? args.to_a.inspect : "[]"
+          LAST_ARGS[LastArgsKey.new(registry_name, name, object_id)] = args ? args.to_a.inspect : "[]"
         ensure
           enable_recording
         end
