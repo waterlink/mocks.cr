@@ -62,23 +62,49 @@ module Mocks
         value.hash
       end
 
+      def inspect(io)
+        io << "ObjectId{#{value}}"
+      end
+
       protected getter value
     end
 
+    class CallHashKey(T)
+      @object_id : ObjectId
+      @args : T
+      protected getter object_id
+      protected getter args
+      def initialize(@object_id, @args)
+      end
+
+      def ==(other : CallHashKey(T))
+        self.object_id == other.object_id &&
+          self.args == other.args
+      end
+
+      def hash
+        object_id.hash * 32 + args.hash
+      end
+
+      def inspect(io)
+        io << "CallHashKey(#{T}){#{object_id.inspect}, #{args.inspect}}"
+      end
+    end
+
     class CallHash(T)
-      @hash : Hash({ObjectId, T}, ResultInterface)
+      @hash : Hash(CallHashKey(T), ResultInterface)
       getter hash
 
       def initialize
-        @hash = {} of {ObjectId, T} => ResultInterface
+        @hash = {} of CallHashKey(T) => ResultInterface
       end
 
       def add(object_id, args : T, result)
-        hash[{object_id, args}] = ResultWrapper.new(result)
+        hash[CallHashKey(T).new(object_id, args)] = ResultWrapper.new(result)
       end
 
       def fetch(object_id, args : T, result)
-        hash.fetch({object_id, args}, ResultWrapper.new(result)).result
+        hash.fetch(CallHashKey(T).new(object_id, args), ResultWrapper.new(result)).result
       end
     end
 
