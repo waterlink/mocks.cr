@@ -26,6 +26,10 @@ module Mocks
           {% return_type = method_spec.to %}
         {% end %}
 
+        {% if method.is_a?(Expressions) %}
+          {% method = method.expressions[0] %}
+        {% end %}
+
         {% method_name = method.name.stringify %}
         {% method_name = "self.#{method_name.id}" if method.receiver.stringify == "self" %}
         {% method_name = method_name.id %}

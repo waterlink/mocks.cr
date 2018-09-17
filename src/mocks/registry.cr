@@ -62,28 +62,76 @@ module Mocks
         value.hash
       end
 
+      def inspect(io)
+        io << "ObjectId{#{value}}"
+      end
+
       protected getter value
     end
 
+    class CallHashKey(T)
+      @object_id : ObjectId
+      @args : T
+      protected getter object_id
+      protected getter args
+      def initialize(@object_id, @args)
+      end
+
+      def ==(other : CallHashKey(T))
+        self.object_id == other.object_id &&
+          self.args == other.args
+      end
+
+      def hash
+        object_id.hash * 32 + args.hash
+      end
+
+      def inspect(io)
+        io << "CallHashKey(#{T}){#{object_id.inspect}, #{args.inspect}}"
+      end
+    end
+
     class CallHash(T)
-      @hash : Hash({ObjectId, T}, ResultInterface)
+      @hash : Hash(CallHashKey(T), ResultInterface)
       getter hash
 
       def initialize
-        @hash = {} of {ObjectId, T} => ResultInterface
+        @hash = {} of CallHashKey(T) => ResultInterface
       end
 
       def add(object_id, args : T, result)
-        hash[{object_id, args}] = ResultWrapper.new(result)
+        hash[CallHashKey(T).new(object_id, args)] = ResultWrapper.new(result)
       end
 
       def fetch(object_id, args : T, result)
-        hash.fetch({object_id, args}, ResultWrapper.new(result)).result
+        hash.fetch(CallHashKey(T).new(object_id, args), ResultWrapper.new(result)).result
+      end
+    end
+
+    class LastArgsKey
+      protected getter registry_name
+      protected getter name
+      protected getter object_id
+      def initialize(@registry_name : String, @name : String, @object_id : ObjectId)
+      end
+
+      def ==(other : LastArgsKey)
+        self.registry_name == other.registry_name &&
+          self.name == other.name &&
+          self.object_id == other.object_id
+      end
+
+      def hash
+        @registry_name.hash * 32 * 32 + @name.hash * 32 + @object_id.hash
+      end
+
+      def inspect(io)
+        io << "LastArgsKey{registry_name=#{@registry_name.inspect},name=#{@name.inspect},object_id=#{@object_id.inspect}}"
       end
     end
 
     class Method(T)
-      LAST_ARGS = {} of {String, String, ObjectId} => String
+      LAST_ARGS = {} of LastArgsKey => String
       RUNTIME = {:recording => true}
 
       @stubs : CallHash(T)
@@ -114,7 +162,7 @@ module Mocks
       end
 
       def last_received_args(object_id)
-        LAST_ARGS[{registry_name, name, object_id}]?
+        LAST_ARGS[LastArgsKey.new(registry_name, name, object_id)]?
       end
 
       private def record_call(object_id, args)
@@ -123,7 +171,7 @@ module Mocks
         begin
           disable_recording
           received.add(object_id, args, Result.new(false, true))
-          LAST_ARGS[{registry_name, name, object_id}] = args ? args.to_a.inspect : "[]"
+          LAST_ARGS[LastArgsKey.new(registry_name, name, object_id)] = args ? args.to_a.inspect : "[]"
         ensure
           enable_recording
         end
