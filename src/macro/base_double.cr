@@ -1,17 +1,26 @@
 module Mocks
   class BaseDouble
     macro _mock(method_spec, return_type = nil, sample = nil)
+
       {% if sample %}
         {% method = method_spec %}
+
+        {% if method.args.empty? %}
+          {% args_splat_notype = method.args.splat %}
+        {% elsif method.args.splat.stringify.includes?(",") %}
+          {% args_splat_notype = method.args.splat.stringify.split(",").map {|arg| arg.split(":")[0].strip}.join(", ") %}
+        {% else %}
+          {% args_splat_notype = method.args.splat.stringify.split(":")[0].strip %}
+        {% end %}
 
         {% method_name = method.name.stringify %}
         {% method_name = "self.#{method_name.id}" if method.receiver.stringify == "self" %}
         {% method_name = method_name.id %}
 
         {% if method.receiver.stringify == "self" %}
-          {% return_type = "typeof(typeof(#{sample}).#{method.name}(#{method.args.splat}))" %}
+          {% return_type = "typeof(typeof(#{sample}).#{method.name}(#{args_splat_notype.id}))" %}
         {% else %}
-          {% return_type = "typeof(#{sample}.#{method.name}(#{method.args.splat}))".id %}
+          {% return_type = "typeof(#{sample}.#{method.name}(#{args_splat_notype.id}))".id %}
         {% end %}
       {% else %}
 
@@ -30,6 +39,14 @@ module Mocks
           {% method = method.expressions[0] %}
         {% end %}
 
+        {% if method.args.empty? %}
+          {% args_splat_notype = method.args.splat %}
+        {% elsif method.args.splat.stringify.includes?(",") %}
+          {% args_splat_notype = method.args.splat.stringify.split(",").map {|arg| arg.split(":")[0].strip}.join(", ") %}
+        {% else %}
+          {% args_splat_notype = method.args.splat.stringify.split(":")[0].strip %}
+        {% end %}
+
         {% method_name = method.name.stringify %}
         {% method_name = "self.#{method_name.id}" if method.receiver.stringify == "self" %}
         {% method_name = method_name.id %}
@@ -38,17 +55,20 @@ module Mocks
       def {{method_name}}({{method.args.splat}})
         {% if method.args.empty? %}
           {% args_tuple = "nil".id %}
+          {% args_tuple_notype = "nil".id %}
         {% else %}
           {% args_tuple = "{#{method.args.splat}}".id %}
+          {% args_tuple_notype = "{#{args_splat_notype.id}}".id %}
         {% end %}
 
         {% args_types = "typeof(#{args_tuple})".id %}
+        {% args_notype_types = "typeof(#{args_tuple_notype})".id %}
 
         ::Mocks::Registry.remember({{args_types}})
 
-        %method = ::Mocks::Registry({{args_types}}).for(@@name).fetch_method("{{method_name}}")
+        %method = ::Mocks::Registry({{args_notype_types}}).for(@@name).fetch_method("{{method_name}}")
 
-        %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{args_tuple}})
+        %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{args_tuple_notype}})
 
         if %result.call_original
 
@@ -60,7 +80,7 @@ module Mocks
               {% if method.args.empty? %}
                 "#{self.inspect} received unexpected method call {{method_name}}[]"
               {% else %}
-                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.splat}}]}"
+                "#{self.inspect} received unexpected method call {{method_name}}#{[{{args_splat_notype.id}}]}"
               {% end %}
             )
 
@@ -74,7 +94,7 @@ module Mocks
               {% if method.args.empty? %}
                 "#{self.inspect} received unexpected method call {{method_name}}[]"
               {% else %}
-                "#{self.inspect} received unexpected method call {{method_name}}#{[{{method.args.splat}}]}"
+                "#{self.inspect} received unexpected method call {{method_name}}#{[{{args_splat_notype.id}}]}"
               {% end %}
             )
           end
