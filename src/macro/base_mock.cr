@@ -26,17 +26,26 @@ module Mocks
         end
 
         {% if method.args.empty? %}
+          {% args_splat_notype = method.args.splat %}
           {% args_tuple = "nil".id %}
+          {% args_tuple_notype = "nil".id %}
         {% else %}
+          {% if method.args.splat.stringify.includes?(",") %}
+            {% args_splat_notype = method.args.splat.stringify.split(",").map {|arg| arg.split(":")[0].strip}.join(", ") %}
+          {% else %}
+            {% args_splat_notype = method.args.splat.stringify.split(":")[0].strip %}
+          {% end %}
           {% args_tuple = "{#{method.args.splat}}".id %}
+          {% args_tuple_notype = "{#{args_splat_notype.id}}".id %}
         {% end %}
 
         {% args_types = "typeof(#{args_tuple})".id %}
+        {% args_notype_types = "typeof(#{args_tuple_notype})".id %}
 
         ::Mocks::Registry.remember({{args_types}})
 
-        %method = ::Mocks::Registry({{args_types}}).for(%mock_name).fetch_method({{method_name.stringify}})
-        %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{args_tuple}})
+        %method = ::Mocks::Registry({{args_notype_types}}).for(%mock_name).fetch_method({{method_name.stringify}})
+        %result = %method.call(::Mocks::Registry::ObjectId.build(self), {{args_tuple_notype}})
 
         if %result.call_original
           {{previous}}
@@ -50,7 +59,7 @@ module Mocks
               {% if method.args.empty? %}
                 "#{ %type_error } {{method_name}}[]. #{ %type_error_detail }"
               {% else %}
-                "#{ %type_error } {{method_name}}#{[{{method.args.splat}}]}. #{ %type_error_detail }"
+                "#{ %type_error } {{method_name}}#{[{{args_splat_notype.id}}]}. #{ %type_error_detail }"
               {% end %}
             )
           end

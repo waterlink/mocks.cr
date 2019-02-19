@@ -17,6 +17,10 @@ class Example
     "hey, #{name}"
   end
 
+  def say_hello_type(name : String)
+    "hey, #{name} String"
+  end
+
   def say_nothing
     nil
   end
@@ -51,6 +55,7 @@ Mocks.create_mock Example do
   mock self.hello_world(greeting)
   mock instance.say_hello
   mock instance.say_hello(name)
+  mock instance.say_hello_type(name : String)
   mock instance.greeting = value
   mock instance == value
 end
@@ -72,6 +77,7 @@ Mocks.create_double "OtherExample" do
   mock self.hello_world(greeting).as(String)
   mock instance.say_hello.as(String)
   mock instance.say_hello(name).as(String)
+  mock instance.say_hello_type(name : String).as(String)
   mock (instance.greeting = value), String
 end
 
@@ -108,6 +114,7 @@ describe Mocks do
     it "has original value when there is no mocking" do
       Example.new.say_hello.should eq("hey!")
       Example.new.say_hello("john").should eq("hey, john")
+      Example.new.say_hello_type("mike").should eq("hey, mike String")
     end
 
     it "has mocked value when there was some mocking" do
@@ -119,6 +126,10 @@ describe Mocks do
 
       allow(example).to receive(say_hello).and_return("aloha!")
       example.say_hello.should eq("aloha!")
+
+      allow(example).to receive(say_hello_type("world")).and_return("hello, world!")
+      example.say_hello_type("world").should eq("hello, world!")
+      example.say_hello_type("james").should eq("hey, james String")
     end
 
     it "affects only the same instance" do
@@ -161,12 +172,17 @@ describe Mocks do
     it "returns value of valid type when not mocked" do
       example = Example.new
       typeof(example.say_hello("world")).should eq(String)
+
+      typeof(example.say_hello_type("world")).should eq(String)
     end
 
     it "returns value of valid type when mocked" do
       example = Example.new
       allow(example).to receive(say_hello("world")).and_return("hello, test")
       typeof(example.say_hello("world")).should eq(String)
+
+      allow(example).to receive(say_hello_type("world")).and_return("hello, test")
+      typeof(example.say_hello_type("world")).should eq(String)
     end
 
     it "does not fail if stubbed value is nil" do
@@ -176,6 +192,12 @@ describe Mocks do
       expected_message = "#{example.inspect} attempted to return stubbed value of wrong type, while calling say_hello[\"world\"]. Expected type: String. Actual type: Nil"
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("world")
+      end
+
+      expected_message = "#{example.inspect} attempted to return stubbed value of wrong type, while calling say_hello_type[\"world\"]. Expected type: String. Actual type: Nil"
+      allow(example).to receive(say_hello_type("world")).and_return(nil)
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
+        example.say_hello_type("world")
       end
     end
 
@@ -195,6 +217,9 @@ describe Mocks do
 
       allow(example).to receive(say_hello).and_return("halo")
       example.say_hello.should eq("halo")
+
+      allow(example).to receive(say_hello_type("john")).and_return("halo, john string")
+      example.say_hello_type("john").should eq("halo, john string")
     end
 
     it "defines good default #==" do
@@ -229,6 +254,9 @@ describe Mocks do
     it "allows to define stubs as an argument" do
       example = Mocks.double("OtherExample", returns(say_hello("world"), "hello, world!"))
       example.say_hello("world").should eq("hello, world!")
+
+      example = Mocks.double("OtherExample", returns(say_hello_type("world"), "hello, world!!"))
+      example.say_hello_type("world").should eq("hello, world!!")
     end
 
     it "allows for allow syntax" do
@@ -236,6 +264,11 @@ describe Mocks do
       allow(example).to receive(say_hello("john")).and_return("hi, john")
       example.say_hello("world").should eq("hello, world!")
       example.say_hello("john").should eq("hi, john")
+
+      example = Mocks.double("OtherExample", returns(say_hello_type("world"), "hello, world! Stging!"))
+      allow(example).to receive(say_hello_type("john")).and_return("hi, john!!")
+      example.say_hello_type("world").should eq("hello, world! Stging!")
+      example.say_hello_type("john").should eq("hi, john!!")
     end
 
     it "allows to stub class methods" do
@@ -253,26 +286,35 @@ describe Mocks do
     it "allows to define multiple stubs as an argument list" do
       example = Mocks.double("OtherExample",
                        returns(say_hello("world"), "hello, world!"),
+                       returns(say_hello_type("world"), "hello, world!!"),
                        returns(instance.greeting=("hi"), "yes, it is hi"))
 
       example.say_hello("world").should eq("hello, world!")
+      example.say_hello_type("world").should eq("hello, world!!")
       (example.greeting = "hi").should eq("yes, it is hi")
     end
 
     it "raises UnexpectedMethodCall when there is no such stub" do
       example = Mocks.double("OtherExample",
                        returns(say_hello("world"), "hello, world!"),
+                       returns(say_hello_type("world"), "hello, world!!"),
                        returns(instance.greeting=("hi"), "yes, it is hi"))
 
       expected_message = %{#{example.inspect} received unexpected method call say_hello["john"]}
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("john")
       end
+
+      expected_message = %{#{example.inspect} received unexpected method call say_hello_type["john"]}
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
+        example.say_hello_type("john")
+      end
     end
 
     it "returns value of correct type" do
       example = Mocks.double("OtherExample")
       typeof(example.say_hello("world")).should eq(String)
+      typeof(example.say_hello_type("world!")).should eq(String)
     end
   end
 
@@ -281,36 +323,54 @@ describe Mocks do
       example = Mocks.instance_double(Example)
       allow(example).to receive(say_hello("jonny")).and_return("ah, jonny, there you are")
       example.say_hello("jonny").should eq("ah, jonny, there you are")
+
+      allow(example).to receive(say_hello_type("jonny")).and_return("ah, jonny, there you are!")
+      example.say_hello_type("jonny").should eq("ah, jonny, there you are!")
     end
 
     it "can be created with stub" do
       example = Mocks.instance_double(Example, returns(say_hello("james"), "Hi, James!"))
       example.say_hello("james").should eq("Hi, James!")
+
+      example = Mocks.instance_double(Example, returns(say_hello_type("james"), "Hi, James! string"))
+      example.say_hello_type("james").should eq("Hi, James! string")
     end
 
     it "can be created with a list of stubs" do
       example = Mocks.instance_double(Example,
                                 returns(say_hello("james"), "Hi, James!"),
-                                returns(say_hello("john"), "Oh, hey, John."))
+                                returns(say_hello("john"), "Oh, hey, John."),
+                                returns(say_hello_type("james"), "Hi, James! string!"),
+                                returns(say_hello_type("john"), "Oh, hey, John. string!"))
 
       example.say_hello("john").should eq("Oh, hey, John.")
       example.say_hello("james").should eq("Hi, James!")
+      example.say_hello_type("john").should eq("Oh, hey, John. string!")
+      example.say_hello_type("james").should eq("Hi, James! string!")
     end
 
     it "raises UnexpectedMethodCall when there is no such stub" do
       example = Mocks.instance_double(Example,
                                 returns(say_hello("james"), "Hi, James!"),
-                                returns(say_hello("john"), "Oh, hey, John."))
+                                returns(say_hello("john"), "Oh, hey, John."),
+                                returns(say_hello_type("james"), "Hi, James! string!"),
+                                returns(say_hello_type("john"), "Oh, hey, John. string!"))
 
       expected_message = "#{example.inspect} received unexpected method call say_hello[\"sarah\"]"
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("sarah")
+      end
+
+      expected_message = "#{example.inspect} received unexpected method call say_hello_type[\"sarah\"]"
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
+        example.say_hello_type("sarah")
       end
     end
 
     it "returns value of correct type" do
       example = Mocks.instance_double(Example)
       typeof(example.say_hello("world")).should eq(String)
+      typeof(example.say_hello_type("world")).should eq(String)
     end
   end
 
@@ -351,6 +411,14 @@ describe Mocks do
       expected_message = "#{example.inspect} received unexpected method call say_hello[\"james\"]"
       expect_raises Mocks::UnexpectedMethodCall, expected_message do
         example.say_hello("james")
+      end
+
+      allow(example).to receive(say_hello_type("john")).and_return("hello, john! string!")
+      example.say_hello_type("john").should eq("hello, john! string!")
+
+      expected_message = "#{example.inspect} received unexpected method call say_hello_type[\"james\"]"
+      expect_raises Mocks::UnexpectedMethodCall, expected_message do
+        example.say_hello_type("james")
       end
     end
 
