@@ -42,7 +42,7 @@ end
 
 struct StructTimeExample
   def self.now
-    Time.new(2015, 1, 10)
+    Time.local(2015, 1, 10)
   end
 end
 
@@ -147,10 +147,10 @@ describe Mocks do
     end
 
     it "works with struct methods" do
-      StructTimeExample.now.should eq(Time.new(2015, 1, 10))
+      StructTimeExample.now.should eq(Time.local(2015, 1, 10))
 
-      allow(StructTimeExample).to receive(self.now).and_return(Time.new(2014, 12, 22))
-      StructTimeExample.now.should eq(Time.new(2014, 12, 22))
+      allow(StructTimeExample).to receive(self.now).and_return(Time.local(2014, 12, 22))
+      StructTimeExample.now.should eq(Time.local(2014, 12, 22))
     end
 
     it "affects only the same class" do
