@@ -140,7 +140,7 @@ Mocks.create_struct_mock Example do
 end
 
 example = Example.new
-allow(example).to receive(now).and_return(Time.new(2014, 12, 22))
+allow(example).to receive(now).and_return(Time.local(2014, 12, 22))
 ```
 
 ### Double

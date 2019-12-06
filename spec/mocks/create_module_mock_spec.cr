@@ -10,8 +10,8 @@ Mocks.create_module_mock MyModule do
   mock self.exists?(name)
 end
 
-Mocks.create_mock File do
-  mock self.exists?(name)
+Mocks.create_module_mock Crystal::System::File do
+  mock self.exists?(path)
 end
 
 describe "create module mock macro" do
@@ -22,7 +22,7 @@ describe "create module mock macro" do
   end
 
   it "does not fail with Nil errors for stdlib class" do
-    allow(File).to receive(self.exists?("hello")).and_return(true)
+    allow(Crystal::System::File).to receive(self.exists?("hello")).and_return(true)
     File.exists?("world").should eq(false)
     File.exists?("hello").should eq(true)
   end
