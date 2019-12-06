@@ -59,6 +59,10 @@ Mocks.create_mock AnotherExample do
   mock self.hello_world
 end
 
+Mocks.create_mock File do
+  mock self.read_lines(filename, encoding = nil, invalid = nil, chomp = true)
+end
+
 Mocks.create_module_mock ModuleExample do
   mock self.hello_world
 end
@@ -137,6 +141,11 @@ describe Mocks do
 
       allow(Example).to receive(self.hello_world("halo")).and_return("halo there world")
       Example.hello_world("halo").should eq("halo there world")
+    end
+
+    it "mocks File.read_lines" do
+      allow(File).to receive(self.read_lines("example")).and_return(["hey, world!\n"])
+      File.read_lines("example").should eq(["hey, world!\n"])
     end
 
     it "works with module methods" do
