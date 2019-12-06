@@ -83,7 +83,7 @@ module Mocks
       end
 
       def hash
-        object_id.hash * 32 + args.hash
+        object_id.hash &* 32 &+ args.hash
       end
 
       def inspect(io)
@@ -122,7 +122,7 @@ module Mocks
       end
 
       def hash
-        @registry_name.hash * 32 * 32 + @name.hash * 32 + @object_id.hash
+        @registry_name.hash &* 32 &* 32 &+ @name.hash &* 32 &+ @object_id.hash
       end
 
       def inspect(io)

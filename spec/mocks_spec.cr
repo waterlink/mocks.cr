@@ -9,6 +9,10 @@ class Example
     "#{greeting} world"
   end
 
+  def self.hello_world_default(greeting, object = "world")
+    "#{greeting} to the #{object}"
+  end
+
   def say_hello
     "hey!"
   end
@@ -42,13 +46,14 @@ end
 
 struct StructTimeExample
   def self.now
-    Time.new(2015, 1, 10)
+    Time.local(2015, 1, 10)
   end
 end
 
 Mocks.create_mock Example do
   mock self.hello_world
   mock self.hello_world(greeting)
+  mock self.hello_world_default(greeting, object = "world")
   mock instance.say_hello
   mock instance.say_hello(name)
   mock instance.greeting = value
@@ -139,6 +144,13 @@ describe Mocks do
       Example.hello_world("halo").should eq("halo there world")
     end
 
+    it "works with class methods that have default values for arguments" do
+      Example.hello_world_default("hello").should eq("hello to the world")
+
+      allow(Example).to receive(self.hello_world_default("halo", "earth")).and_return("halo there earth")
+      Example.hello_world_default("halo", "earth").should eq("halo there earth")
+    end
+
     it "works with module methods" do
       ModuleExample.hello_world.should eq("what a wonderful world")
 
@@ -147,10 +159,10 @@ describe Mocks do
     end
 
     it "works with struct methods" do
-      StructTimeExample.now.should eq(Time.new(2015, 1, 10))
+      StructTimeExample.now.should eq(Time.local(2015, 1, 10))
 
-      allow(StructTimeExample).to receive(self.now).and_return(Time.new(2014, 12, 22))
-      StructTimeExample.now.should eq(Time.new(2014, 12, 22))
+      allow(StructTimeExample).to receive(self.now).and_return(Time.local(2014, 12, 22))
+      StructTimeExample.now.should eq(Time.local(2014, 12, 22))
     end
 
     it "affects only the same class" do
