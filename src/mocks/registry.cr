@@ -1,7 +1,15 @@
 require "singleton"
+require "big"
 
 module Mocks
   REGISTRIES = [] of Registry.class
+
+  def self.multi_hash(first : UInt64, *hashes)
+    return BigInt.new(first) if hashes.size < 1
+    hashes.reduce(BigInt.new(first)) { |acc, i|
+        (acc << 64) + BigInt.new(i) 
+    }
+  end
 
   def self.reset_registries
     Singleton.reset
@@ -72,7 +80,7 @@ module Mocks
     class CallHashKey(T)
       @object_id : ObjectId
       @args : T
-      protected getter object_id
+      getter object_id
       protected getter args
       def initialize(@object_id, @args)
       end
@@ -83,7 +91,7 @@ module Mocks
       end
 
       def hash
-        object_id.hash * 32 + args.hash
+        Mocks.multi_hash(object_id.hash, args.hash)
       end
 
       def inspect(io)
@@ -111,7 +119,7 @@ module Mocks
     class LastArgsKey
       protected getter registry_name
       protected getter name
-      protected getter object_id
+      getter object_id
       def initialize(@registry_name : String, @name : String, @object_id : ObjectId)
       end
 
@@ -122,7 +130,7 @@ module Mocks
       end
 
       def hash
-        @registry_name.hash * 32 * 32 + @name.hash * 32 + @object_id.hash
+        Mocks.multi_hash(@registry_name.hash, @name.hash, @object_id.hash)
       end
 
       def inspect(io)
